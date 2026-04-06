@@ -1,0 +1,75 @@
+---
+import { Image } from "astro:assets";
+import { getVisualPresentation, type VisualAsset, type VisualSurface, type VisualSafeInset } from "../data/projects";
+
+interface Props {
+  asset: VisualAsset;
+  surface: VisualSurface;
+  widths: number[];
+  sizes: string;
+  loading?: "lazy" | "eager";
+  quality?: number;
+  priority?: boolean;
+  className?: string;
+}
+
+const {
+  asset,
+  surface,
+  widths,
+  sizes,
+  loading = "lazy",
+  quality = 82,
+  priority = false,
+  className = ""
+} = Astro.props;
+
+const presentation = getVisualPresentation(asset, surface);
+
+const insetScale: Record<VisualSafeInset, string> = {
+  none: "0px",
+  sm: "clamp(0.6rem, 1.2vw, 0.95rem)",
+  md: "clamp(0.9rem, 1.8vw, 1.4rem)",
+  lg: "clamp(1.1rem, 2.2vw, 1.8rem)"
+};
+
+const mobileInsetScale: Record<VisualSafeInset, string> = {
+  none: "0px",
+  sm: "clamp(0.55rem, 2vw, 0.8rem)",
+  md: "clamp(0.75rem, 2.8vw, 1.05rem)",
+  lg: "clamp(0.95rem, 3.6vw, 1.35rem)"
+};
+
+const frameStyle = [
+  `--asset-object-position:${presentation.objectPosition}`,
+  `--asset-object-position-mobile:${presentation.mobileObjectPosition}`,
+  `--asset-safe-pad:${insetScale[presentation.safeInset]}`,
+  `--asset-safe-pad-mobile:${mobileInsetScale[presentation.mobileSafeInset]}`
+].join(";");
+---
+
+<div
+  class:list={[
+    "visual-asset-frame",
+    `surface-${surface}`,
+    `fit-${presentation.cropMode}`,
+    `role-${presentation.contentRole}`,
+    `tone-${asset.surfaceTone}`,
+    asset.lightSafe && "is-light-safe",
+    className
+  ]}
+  style={frameStyle}
+>
+  <div class="visual-asset-shell">
+    <Image
+      class="visual-asset-image"
+      src={asset.src}
+      alt={asset.alt}
+      widths={widths}
+      sizes={sizes}
+      loading={priority ? "eager" : loading}
+      fetchpriority={priority ? "high" : "auto"}
+      quality={quality}
+    />
+  </div>
+</div>

@@ -1,0 +1,200 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import CuratedWorkGrid from "../../components/CuratedWorkGrid.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref } from "../../data/site";
+import {
+  curateVisualAssets,
+  getProjectAssetsByIds,
+  getProjectBySlug,
+  getProjectSelectedAssets,
+  projectLibrary
+} from "../../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../../utils/seo";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Referenzen", href: "/referenzen" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+const meCon = getProjectBySlug("me-con")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop", "caremobil-after-mobile"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications-grid"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"])
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "square_original"] }
+);
+
+const galleryImages = curateVisualAssets(
+  [
+    ...getProjectSelectedAssets(caremobil, 2),
+    ...getProjectSelectedAssets(conner, 1),
+    ...getProjectSelectedAssets(reinigung, 1),
+    ...getProjectSelectedAssets(meCon, 1)
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const overviewExcludedSources = [...heroAssets, ...galleryImages].map((asset) => asset.sourceId);
+
+const caseItems = [
+  {
+    id: "case-caremobil",
+    category: "website" as const,
+    title: caremobil.publicName,
+    text: "Relaunch mit ruhigerer Hierarchie, klarerer Kontaktführung und deutlich besserer mobiler Wirkung.",
+    href: `/referenzen/${caremobil.slug}`,
+    image:
+      curateVisualAssets(getProjectSelectedAssets(caremobil, 3), { count: 1, excludeSourceIds: overviewExcludedSources })[0] ||
+      getProjectAssetsByIds(caremobil, ["caremobil-after-desktop"])[0],
+    meta: "Website · Case Study"
+  },
+  {
+    id: "case-conner",
+    category: "brand" as const,
+    title: conner.publicName,
+    text: "Logo-Refresh und Markenanwendungen, die professioneller, ruhiger und wiedererkennbarer wirken.",
+    href: `/referenzen/${conner.slug}`,
+    image:
+      curateVisualAssets(getProjectSelectedAssets(conner, 3), { count: 1, excludeSourceIds: overviewExcludedSources })[0] ||
+      getProjectAssetsByIds(conner, ["conner-brand-applications"])[0],
+    meta: "Brand · Case Study"
+  },
+  {
+    id: "case-reinigung",
+    category: "print" as const,
+    title: reinigung.publicName,
+    text: "Flyer-Redesign mit klarerer Preisstruktur, stärkerer Direktwirkung und saubererem Gesamtbild.",
+    href: `/referenzen/${reinigung.slug}`,
+    image:
+      curateVisualAssets(getProjectSelectedAssets(reinigung, 3), { count: 1, excludeSourceIds: overviewExcludedSources })[0] ||
+      getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"])[0],
+    meta: "Print · Case Study"
+  },
+  {
+    id: "case-mecon",
+    category: "print" as const,
+    title: meCon.publicName,
+    text: "Banner, Flyer und Roll-up übersetzen ein beratungsintensives Angebot in eine ruhige Markenlogik.",
+    href: `/referenzen/${meCon.slug}`,
+    image:
+      curateVisualAssets(getProjectSelectedAssets(meCon, 3), { count: 1, excludeSourceIds: overviewExcludedSources })[0] ||
+      getProjectAssetsByIds(meCon, ["me-con-flyer-overview"])[0],
+    meta: "Print · System"
+  }
+];
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich möchte ein ähnliches Projekt wie in den Referenzen anfragen.");
+---
+
+<BaseLayout
+  title="Referenzen | Fly & Froth"
+  description="Referenzen von Fly & Froth mit echten Arbeiten aus Webdesign, Brand Design, Print und strukturierten Kontaktflächen."
+  pathname="/referenzen"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Referenzen und Case Studies", "Echte Arbeiten aus Website, Branding, Print und visueller Systemlogik.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Referenzen"
+    title="Keine lose Galerie, sondern echte Projekte mit sichtbarer Denkrichtung."
+    text="Die Referenzen zeigen nicht nur schöne Oberflächen, sondern wie Website, Brand oder Print jeweils zu mehr Klarheit, Wertigkeit und besserer Kontaktwirkung geführt wurden."
+    images={heroAssets}
+    tone="light"
+    layout="hero"
+    badges={["Case Studies", "Only Own Work"]}
+  >
+    <div class="grid-1 reveal">
+      <article class="proof-card">
+        <h3>Nur reale Arbeiten</h3>
+        <p>Die sichtbaren Flächen stammen aus echten Projekten und nicht aus generischen Stock- oder Konzeptwelten.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Mehr als eine Oberfläche</h3>
+        <p>Jede Case Study zeigt mindestens zwei unterschiedliche Deliverables und damit eine belastbare Gestaltungsrichtung.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Verkaufbarer Kontext</h3>
+        <p>Die Arbeiten bleiben nicht bei Bildern stehen, sondern machen Aufgabe, Ansatz und Wirkung nachvollziehbar.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <ProjectGallery
+    eyebrow="Visual Proof"
+    title="Website, Brand und Print werden als zusammenhängende Geschäftskommunikation lesbar."
+    text="So wird früh sichtbar, dass Fly & Froth nicht nur Einzelstücke gestaltet, sondern einen konsistenten Auftritt über mehrere Flächen hinweg aufbaut."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <CuratedWorkGrid
+    eyebrow="Case Browser"
+    title="Vier reale Projekte, die die Richtung des Studios klar abbilden."
+    text="Jede Case Study steht für eine andere Schwerpunktsetzung und trotzdem für dieselbe Grundlogik: ruhigerer Eindruck, präzisere Gestaltung und ein klar vorbereiteter nächster Schritt."
+    items={caseItems}
+    showFilters={false}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Was alle Referenzen verbindet"
+        title="Mehr Ordnung, mehr Wertigkeit und weniger visuelle Beliebigkeit."
+        text="Unabhängig von Branche oder Medium geht es immer darum, unruhige Kommunikation in eine Form zu übersetzen, die sofort professioneller und belastbarer wirkt."
+      />
+
+      <div class="grid-3 reveal">
+        <article class="proof-card">
+          <h3>Klarere Prioritäten</h3>
+          <p>Informationen, Nutzen und Kontaktwege werden so sortiert, dass der erste Eindruck schneller sitzt.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Hochwertigere Wirkung</h3>
+          <p>Typografie, Bildführung und Fläche arbeiten sichtbar präziser als typische Baukasten- oder Schnelllösungen.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Sauberer nächster Schritt</h3>
+          <p>Die Referenzen zeigen nicht nur Gestaltung, sondern immer auch eine klare Bewegung hin zu Anfrage, Vertrauen oder Gespräch.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Aktuelle Basis"
+        title="Die aktuelle Referenzbasis bleibt bewusst kuratiert."
+        text="Lieber wenige starke Projekte mit klarer Aussage als eine überfüllte Sammlung ohne Richtung."
+      />
+
+      <div class="project-card-grid reveal">
+        {projectLibrary.map((project) => (
+          <ProjectCard project={project} mode="case-study" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn eines dieser Projekte zu Ihrer Situation passt, nutzen wir genau diese Richtung als Ausgangspunkt."
+    text="Im Erstgespräch klären wir, welche Kombination aus Website, Brand, Print oder Systemlogik für Ihr Unternehmen den größten Hebel erzeugt."
+    primaryHref={createContactHref({ entry_point: "referenzen_cta", visual_context: "Referenzen Overview" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

@@ -1,0 +1,63 @@
+---
+import { createWhatsappHref, footerLinkGroups, siteConfig, supportingLinks } from "../data/site";
+
+const year = new Date().getFullYear();
+const whatsappHref = createWhatsappHref();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-shell">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand brand-footer" href="/">
+            <img src="/favicon.svg" alt="Fly & Froth logo, a design studio specializing in web design, brand design, and systems" width="42" height="42" />
+            <span>
+              <strong>{siteConfig.brand}</strong>
+              <small>Webdesign, Brand Design, Systeme</small>
+            </span>
+          </a>
+
+          <p>
+            Fly & Froth entwickelt hochwertige digitale und visuelle Auftritte für Unternehmen aus Karben, Frankfurt am
+            Main und dem Rhein-Main-Gebiet, die professioneller auftreten und strukturierter anfragen möchten.
+          </p>
+
+          <div class="footer-contact">
+            <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>
+            <a href={`tel:${siteConfig.contact.phoneRaw}`}>{siteConfig.contact.phoneDisplay}</a>
+            <a href={whatsappHref} target="_blank" rel="noreferrer">
+              WhatsApp anfragen
+            </a>
+          </div>
+        </div>
+
+        {footerLinkGroups.map((group) => (
+          <div>
+            <h3>{group.title}</h3>
+            <ul class="footer-links">
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-local-links">
+          {supportingLinks.map((link) => (
+            <a href={link.href}>{link.label}</a>
+          ))}
+        </div>
+
+        <p>
+          © {year} {siteConfig.brand}. {siteConfig.contact.addressLine1}, {siteConfig.contact.postalCode}{" "}
+          {siteConfig.contact.city}.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

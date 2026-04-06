@@ -1,0 +1,12 @@
+---
+interface Props {
+  tone?: "light" | "dark";
+  className?: string;
+}
+
+const { tone = "dark", className = "" } = Astro.props;
+---
+
+<section class:list={["page-section", tone === "light" ? "surface-light" : "surface-dark", className]}>
+  <slot />
+</section>

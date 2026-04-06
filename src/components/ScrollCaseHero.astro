@@ -1,0 +1,121 @@
+---
+import MockupScene from "./MockupScene.astro";
+import type { HeroScene } from "../data/projects";
+import type { StatItem } from "../data/site";
+
+interface Action {
+  href: string;
+  label: string;
+  style?: "primary" | "secondary";
+  external?: boolean;
+}
+
+interface SceneWithAssets extends HeroScene {
+  assets: import("../data/projects").VisualAsset[];
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  scenes: SceneWithAssets[];
+  actions?: Action[];
+  stats?: StatItem[];
+}
+
+const { eyebrow, title, intro, scenes, actions = [], stats = [] } = Astro.props;
+---
+
+<section class="scroll-case-hero reveal" data-scroll-case data-active-index="0">
+  <div class="container">
+    <div class="scroll-case-top">
+      <div class="scroll-case-intro">
+        <span class="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p class="hero-intro">{intro}</p>
+
+        {actions.length > 0 && (
+          <div class="hero-actions">
+            {actions.map((action) => (
+              <a
+                class:list={["button", action.style === "secondary" && "button-secondary"]}
+                href={action.href}
+                target={action.external ? "_blank" : undefined}
+                rel={action.external ? "noreferrer" : undefined}
+              >
+                {action.label}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {stats.length > 0 && (
+        <div class="hero-stat-band">
+          {stats.map((stat) => (
+            <article class="hero-stat-card">
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+              {stat.detail && <small>{stat.detail}</small>}
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="scroll-case-shell">
+      <div class="scroll-case-stage sticky-panel">
+        <div class="scroll-case-viewport">
+          {scenes.map((scene, index) => (
+            <div
+              class:list={["scroll-case-panel", scene.tone === "light" && "is-light"]}
+              data-scroll-case-panel
+              data-index={index}
+            >
+              <div class="scroll-case-panel-copy">
+                <span class="small-label">{scene.label}</span>
+                <h3>{scene.title}</h3>
+                <p>{scene.text}</p>
+                <div class="scroll-case-meta">
+                  <span>{scene.serviceLabel}</span>
+                  <span>{scene.projectSlug.replaceAll("-", " ")}</span>
+                </div>
+              </div>
+
+              <MockupScene
+                images={scene.assets}
+                tone={scene.tone}
+                layout={scene.label === "Print" ? "print" : scene.label === "Brand" ? "brand" : "hero"}
+                badges={[scene.label, scene.serviceLabel]}
+                priority={index === 0}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div class="scroll-case-chips" data-scroll-case-chips>
+          {scenes.map((scene, index) => (
+            <button type="button" data-scroll-case-chip data-index={index}>
+              <span>{scene.label}</span>
+              <strong>{scene.serviceLabel}</strong>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="scroll-case-steps">
+        {scenes.map((scene, index) => (
+          <article class="scroll-case-step" data-scroll-case-step data-index={index}>
+            <span class="small-label">{scene.label}</span>
+            <h2>{scene.title}</h2>
+            <p>{scene.text}</p>
+            <div class="scroll-case-step-meta">
+              <span>{scene.serviceLabel}</span>
+              <span>Reale Arbeiten, kuratiert inszeniert</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

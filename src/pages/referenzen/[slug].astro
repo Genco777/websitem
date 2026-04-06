@@ -1,0 +1,213 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import SelectiveComparison from "../../components/SelectiveComparison.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  createContactHref,
+  createWhatsappHref,
+  servicePillars
+} from "../../data/site";
+import {
+  curateVisualAssets,
+  getProjectAssetsByIds,
+  getProjectGalleryAssets,
+  getProjectPrimaryAsset,
+  projectLibrary
+} from "../../data/projects";
+import { createBreadcrumbSchema, createProjectSchema } from "../../utils/seo";
+
+export function getStaticPaths() {
+  return projectLibrary.map((project) => ({
+    params: { slug: project.slug },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const relatedServices = servicePillars.filter((service) => project.services.includes(service.slug));
+const relatedProjects = projectLibrary.filter((item) => item.slug !== project.slug).slice(0, 3);
+const heroImage = getProjectPrimaryAsset(project, "hero");
+const galleryImages = getProjectGalleryAssets(project, 4);
+const sceneImages = curateVisualAssets([heroImage, ...galleryImages], {
+  count: 3,
+  preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "device_mockup", "square_original"]
+});
+const comparisonAssets = project.comparisonAssetIds ? getProjectAssetsByIds(project, project.comparisonAssetIds) : [];
+
+const comparisonItems =
+  comparisonAssets.length >= 2
+    ? [
+        {
+          title: `${project.publicName} zeigt die Veränderung besonders klar.`,
+          text: "Gerade in der Gegenüberstellung wird sichtbar, wie sich Orientierung, Wertigkeit und Kontaktwirkung verbessern.",
+          before: comparisonAssets[0],
+          after: comparisonAssets[1]
+        }
+      ]
+    : [];
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Referenzen", href: "/referenzen" },
+  { name: project.publicName, href: `/referenzen/${project.slug}` }
+];
+
+const inquiryHref = createContactHref({
+  requested_service: relatedServices[0]?.title,
+  project_context: project.publicName,
+  ref_project_slug: project.slug,
+  entry_point: "case_study",
+  visual_context: project.publicName
+});
+
+const whatsappHref = createWhatsappHref(
+  `Hallo Fly & Froth, ich möchte ein ähnliches Projekt wie ${project.publicName} anfragen.`
+);
+---
+
+<BaseLayout
+  title={project.seoTitle}
+  description={project.seoDescription}
+  pathname={`/referenzen/${project.slug}`}
+  schema={[createBreadcrumbSchema(breadcrumbs), createProjectSchema(project)]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow={`Case Study · ${project.location}`}
+    title={project.heroTitle}
+    text={project.heroIntro}
+    actions={[
+      { href: inquiryHref, label: "Ähnliches Projekt anfragen" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true }
+    ]}
+    stats={[
+      { label: "Projekt", value: project.publicName },
+      { label: "Branche", value: project.sector },
+      { label: "Kontext", value: project.location }
+    ]}
+    images={sceneImages}
+    tone={project.heroScenes[0]?.tone || "dark"}
+    layout={project.slug === "conner-exteriors" ? "brand" : project.slug === "reinigung-hd" ? "print" : "hero"}
+    badges={[project.publicName, "Only Own Work"]}
+  />
+
+  <ProjectGallery
+    eyebrow="Deliverables"
+    title="Mindestens zwei unterschiedliche Flächen machen die Denkrichtung des Projekts greifbar."
+    text="So ist nachvollziehbar, wie sich Website, Brand oder Print zu einem belastbaren Gesamteindruck ergänzen."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  {comparisonItems.length > 0 && (
+    <SelectiveComparison
+      eyebrow="Selektiver Vergleich"
+      title="Vorher und Nachher dort, wo die Veränderung wirklich sichtbar wird."
+      text="Die Gegenüberstellung ist bewusst sparsam eingesetzt und dient hier als klarer Beleg für die Qualitätsdifferenz."
+      items={comparisonItems}
+    />
+  )}
+
+  <section class="page-section surface-light">
+    <div class="container split-layout">
+      <div>
+        <SectionIntro eyebrow="Ausgangslage" title="Welche Aufgabe im Kern gelöst werden musste." text={project.challenge} />
+
+        <div class="grid-2 reveal">
+          <article class="proof-card">
+            <h3>Ansatz</h3>
+            <ul class="check-list section-stack-top-sm">
+              {project.approach.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+          <article class="proof-card">
+            <h3>Ergebnis</h3>
+            <ul class="check-list section-stack-top-sm">
+              {project.results.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <aside class="sticky-panel">
+        <div class="metric-panel">
+          <div class="panel-kicker">Deliverables</div>
+          <div class="panel-stack">
+            {project.deliverables.map((item) => (
+              <article>
+                <strong>{item}</strong>
+                <span>{project.summary}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container split-layout">
+      <div>
+        <SectionIntro
+          eyebrow="Kennzahlen & Wirkung"
+          title="Woran die Projektwirkung in der Praxis sichtbar wird."
+          text="Nicht immer in harten Zahlen, aber sehr klar in Orientierung, Wertigkeit und Gesprächsqualität."
+        />
+
+        <div class="pill-list reveal">
+          {project.metrics.map((metric) => (
+            <span class="pill">{metric}</span>
+          ))}
+        </div>
+      </div>
+
+      <div class="media-stack reveal">
+        {relatedServices.map((service) => (
+          <article class="proof-card">
+            <span class="small-label">Passende Leistung</span>
+            <h3>{service.title}</h3>
+            <p>{service.promise}</p>
+            <p class="section-stack-top-sm">
+              <a class="text-link" href={`/leistungen/${service.slug}`}>
+                Zur Leistung
+              </a>
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Verwandte Projekte"
+        title="Weitere Arbeiten mit ähnlicher Denkrichtung."
+        text="Diese Projekte zeigen andere Ausprägungen derselben Logik: mehr Klarheit, stärkerer Eindruck und ein sauber vorbereiteter Kontakt."
+      />
+
+      <div class="project-card-grid reveal">
+        {relatedProjects.map((item) => (
+          <ProjectCard project={item} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Ihr Unternehmen ähnlich klar, hochwertig und strukturiert auftreten soll, ist das der richtige nächste Schritt."
+    text="Wir nutzen diese Case Study gern als Referenzrahmen und übertragen die passende Logik auf Ihr Angebot, Ihre Zielgruppe und Ihren regionalen Markt."
+    primaryHref={inquiryHref}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

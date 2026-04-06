@@ -1,0 +1,41 @@
+---
+import { getProjectPrimaryAsset, type Project } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Props {
+  project: Project;
+  href?: string;
+  mode?: "portfolio" | "case-study";
+}
+
+const { project, href = `/referenzen/${project.slug}`, mode = "portfolio" } = Astro.props;
+const image = getProjectPrimaryAsset(project, "card");
+---
+
+<article class:list={["project-card", mode === "case-study" && "is-case-study"]}>
+  <a class="project-card-link" href={href}>
+    <div class="project-card-media">
+      <VisualAssetFrame
+        asset={image}
+        surface="project-card"
+        widths={[640, 960, 1280]}
+        sizes="(max-width: 760px) 100vw, (max-width: 1180px) 50vw, 33vw"
+        quality={80}
+      />
+    </div>
+
+    <div class="project-card-copy">
+      <span class="case-meta">{project.publicName} · {project.sector}</span>
+      <h3>{project.heroTitle}</h3>
+      <p>{project.summary}</p>
+
+      <div class="pill-list">
+        {project.metrics.slice(0, 3).map((metric) => (
+          <span class="pill">{metric}</span>
+        ))}
+      </div>
+
+      <span class="case-link">{mode === "case-study" ? "Case Study öffnen" : "Projekt ansehen"}</span>
+    </div>
+  </a>
+</article>

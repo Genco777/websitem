@@ -1,0 +1,139 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContextualCTA from "../components/ContextualCTA.astro";
+import CuratedWorkGrid from "../components/CuratedWorkGrid.astro";
+import PageShowcaseHero from "../components/PageShowcaseHero.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { createContactHref, createWhatsappHref } from "../data/site";
+import { curateVisualAssets, getProjectAssetsByIds, getProjectBySlug, getVisualAssetById } from "../data/projects";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Arbeiten", href: "/arbeiten" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+const meCon = getProjectBySlug("me-con")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-hero-crop", "caremobil-before-after-wide"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications-grid"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-flyer-mockup-grid"])
+  ],
+  { count: 3, preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "square_original", "device_mockup"] }
+);
+
+const curatedItems = [
+  {
+    id: "caremobil-case",
+    category: "website" as const,
+    title: "CareMobil Greiz",
+    text: "Vorher-Nachher-Flache fur den sichtbaren Qualitatsunterschied in Struktur, Lesbarkeit und Erstkontakt.",
+    href: "/referenzen/caremobil-greiz",
+    image: getProjectAssetsByIds(caremobil, ["caremobil-before-after-wide"])[0],
+    meta: "Website · Featured"
+  },
+  {
+    id: "caremobil-mobile",
+    category: "website" as const,
+    title: "Mobile UI",
+    text: "Die mobile Prasentation zeigt, wie klar der nachste Schritt auf kleiner Flache lesbar wird.",
+    href: "/leistungen/webdesign-websites",
+    image: getProjectAssetsByIds(caremobil, ["caremobil-after-mobile"])[0],
+    meta: "Website · Mobile"
+  },
+  {
+    id: "conner-case",
+    category: "brand" as const,
+    title: "Conner Exteriors",
+    text: "Logo-Refresh und Markenanwendungen mit ruhigerer, belastbarer und klar wiedererkennbarer Formensprache.",
+    href: "/referenzen/conner-exteriors",
+    image: getProjectAssetsByIds(conner, ["conner-brand-applications-grid"])[0],
+    meta: "Brand · Case Study"
+  },
+  {
+    id: "business-card",
+    category: "brand" as const,
+    title: "Business Card System",
+    text: "Eine kleine Flache, die denselben Anspruch an Materialitat, Typografie und Ton tragt.",
+    href: "/leistungen/brand-design-grafikdesign",
+    image: getVisualAssetById("showcase-brand-business-card")!,
+    meta: "Brand · Application"
+  },
+  {
+    id: "reinigung-case",
+    category: "print" as const,
+    title: "Reinigung HD",
+    text: "Flyer-Mockup mit geordneter Preisstruktur, starker Hierarchie und deutlich professionellerer Direktwirkung.",
+    href: "/referenzen/reinigung-hd",
+    image: getProjectAssetsByIds(reinigung, ["reinigung-flyer-mockup-grid"])[0],
+    meta: "Print · Featured"
+  },
+  {
+    id: "mecon-banner",
+    category: "print" as const,
+    title: "Expo Banner",
+    text: "Großflache mit klarer Nutzenkommunikation und konsistenter Markenwirkung.",
+    href: "/referenzen/me-con",
+    image: getProjectAssetsByIds(meCon, ["me-con-expo-banner"])[0],
+    meta: "Print · Banner"
+  }
+];
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich habe mir die Arbeiten angesehen und moechte ein aehnliches Projekt anfragen.");
+---
+
+<BaseLayout
+  title="Arbeiten | Fly & Froth"
+  description="Portfolio von Fly & Froth mit realen Arbeiten aus Website, Brand Design, Print und strukturierten Kontaktflaechen."
+  pathname="/arbeiten"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Portfolio und Arbeiten", "Reale Arbeiten aus Website, Branding, Print und Systemlogik.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Arbeiten"
+    title="Ein geordnetes Portfolio statt einer lauten Galerie."
+    text="Die Arbeiten werden nicht nach Zufall gezeigt, sondern nach Medium und Wirkung. Website, Brand und Print lassen sich deshalb schnell vergleichen, ohne dass die Seite in visuellen Larm kippt."
+    images={heroAssets}
+    tone="light"
+    layout="hero"
+    badges={["Only Own Work", "Curated Portfolio"]}
+  >
+    <div class="grid-1 reveal">
+      <article class="proof-card">
+        <h3>Nur reale Arbeiten</h3>
+        <p>Alle sichtbaren Flachen stammen aus echten Projekten oder aus kuratierten Ableitungen eigener Arbeiten.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Klare Filterlogik</h3>
+        <p>Website, Brand und Print lassen sich separat betrachten, ohne den Gesamtzusammenhang zu verlieren.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Weniger Wiederholung</h3>
+        <p>Die Auswahl reduziert Dopplungen und zeigt lieber wenige starke Flachen als viele ahnliche Bilder.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <CuratedWorkGrid
+    eyebrow="Portfolio Browser"
+    title="Durchsuchbar nach Website, Brand und Print."
+    text="So lasst sich der visuelle Anspruch von Fly & Froth nicht nur lesen, sondern direkt uber die Arbeiten erfassen."
+    items={curatedItems}
+  />
+
+  <ContextualCTA
+    title="Sie haben in den Arbeiten bereits eine Richtung gesehen, die zu Ihrem Unternehmen passt?"
+    text="Dann nehmen wir genau diese Beispiele als Gesprachsgrundlage und leiten daraus Struktur, Umfang und sinnvolle Prioritaten fur Ihr Projekt ab."
+    primaryHref={createContactHref({ entry_point: "arbeiten_cta", visual_context: "Arbeiten Portfolio" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

@@ -1,0 +1,55 @@
+---
+import { analyticsEvents, createWhatsappHref, siteConfig } from "../data/site";
+
+interface Props {
+  title: string;
+  text: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+}
+
+const {
+  title,
+  text,
+  primaryLabel = siteConfig.ctaMapping.primary,
+  primaryHref = "/kontakt#projektanfrage",
+  secondaryLabel = siteConfig.ctaMapping.secondary,
+  secondaryHref = createWhatsappHref()
+} = Astro.props;
+---
+
+<section class="cta-section reveal">
+  <div class="container">
+    <div class="cta-card" data-scene>
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="cta-copy">
+        <span class="eyebrow">Nächster Schritt</span>
+        <h2>{title}</h2>
+        <p>{text}</p>
+      </div>
+
+      <div class="cta-actions">
+        <a
+          class="button"
+          href={primaryHref}
+          target={primaryHref.startsWith("http") ? "_blank" : undefined}
+          rel="noreferrer"
+          data-track={analyticsEvents.projectCtaClick}
+        >
+          {primaryLabel}
+        </a>
+        <a
+          class="button button-secondary"
+          href={secondaryHref}
+          target={secondaryHref.startsWith("http") ? "_blank" : undefined}
+          rel="noreferrer"
+          data-track={analyticsEvents.whatsappClick}
+        >
+          {secondaryLabel}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

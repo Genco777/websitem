@@ -1,0 +1,193 @@
+---
+import { analyticsEvents } from "../data/site";
+
+const projectCtaEvent = analyticsEvents.projectCtaClick;
+const whatsappEvent = analyticsEvents.whatsappClick;
+const calEvent = analyticsEvents.calClick;
+---
+
+<script is:inline define:vars={{ projectCtaEvent, whatsappEvent, calEvent }}>
+  const prefersReducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const header = document.querySelector("[data-header]");
+  const navToggle = document.querySelector("[data-nav-toggle]");
+  const navPanel = document.querySelector("[data-nav-panel]");
+
+  const setNavOpen = (open) => {
+    if (!navToggle || !navPanel) return;
+
+    navToggle.setAttribute("aria-expanded", String(open));
+    navPanel.classList.toggle("is-open", open);
+    document.body.classList.toggle("nav-is-open", open);
+  };
+
+  if (navToggle && navPanel) {
+    navToggle.addEventListener("click", () => {
+      const expanded = navToggle.getAttribute("aria-expanded") === "true";
+      setNavOpen(!expanded);
+    });
+
+    navPanel.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setNavOpen(false));
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setNavOpen(false);
+      }
+    });
+  }
+
+  const handleHeader = () => {
+    if (!header) return;
+    header.classList.toggle("is-scrolled", window.scrollY > 10);
+  };
+
+  handleHeader();
+  window.addEventListener("scroll", handleHeader, { passive: true });
+
+  const revealItems = document.querySelectorAll(".reveal");
+
+  if (prefersReducedMotion) {
+    revealItems.forEach((item) => item.classList.add("is-visible"));
+  } else {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+    );
+
+    revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  if (!prefersReducedMotion) {
+    document.querySelectorAll("[data-scene]").forEach((scene) => {
+      const layeredNodes = scene.querySelectorAll("[data-parallax-layer]");
+
+      scene.addEventListener("pointermove", (event) => {
+        const rect = scene.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+
+        scene.style.setProperty("--pointer-x", x.toFixed(3));
+        scene.style.setProperty("--pointer-y", y.toFixed(3));
+
+        layeredNodes.forEach((node) => {
+          const depth = Number.parseFloat(node.getAttribute("data-depth") || "0.08");
+          const moveX = x * depth * 80;
+          const moveY = y * depth * 72;
+          node.style.setProperty("--parallax-x", `${moveX.toFixed(2)}px`);
+          node.style.setProperty("--parallax-y", `${moveY.toFixed(2)}px`);
+        });
+      });
+
+      scene.addEventListener("pointerleave", () => {
+        scene.style.setProperty("--pointer-x", "0");
+        scene.style.setProperty("--pointer-y", "0");
+
+        layeredNodes.forEach((node) => {
+          node.style.setProperty("--parallax-x", "0px");
+          node.style.setProperty("--parallax-y", "0px");
+        });
+      });
+    });
+  }
+
+  document.querySelectorAll("[data-scroll-case]").forEach((root) => {
+    const steps = Array.from(root.querySelectorAll("[data-scroll-case-step]"));
+    const chips = Array.from(root.querySelectorAll("[data-scroll-case-chip]"));
+
+    const setActiveIndex = (index) => {
+      root.setAttribute("data-active-index", String(index));
+      chips.forEach((chip) => {
+        chip.classList.toggle("is-active", chip.getAttribute("data-index") === String(index));
+      });
+    };
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const index = Number.parseInt(chip.getAttribute("data-index") || "0", 10);
+        setActiveIndex(index);
+        const step = steps[index];
+        if (step && !prefersReducedMotion) {
+          step.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    });
+
+    if (prefersReducedMotion) {
+      setActiveIndex(0);
+      return;
+    }
+
+    const heroObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number.parseInt(entry.target.getAttribute("data-index") || "0", 10);
+            setActiveIndex(index);
+          }
+        });
+      },
+      { threshold: 0.55 }
+    );
+
+    steps.forEach((step) => heroObserver.observe(step));
+    setActiveIndex(0);
+  });
+
+  document.querySelectorAll("[data-work-filter]").forEach((root) => {
+    const buttons = Array.from(root.querySelectorAll("[data-filter-key]"));
+    const grid = root.parentElement?.querySelector(".curated-work-grid");
+    const items = Array.from(grid?.querySelectorAll("[data-work-item]") || []);
+
+    const setFilter = (key) => {
+      buttons.forEach((button) => {
+        button.classList.toggle("is-active", button.getAttribute("data-filter-key") === key);
+      });
+
+      items.forEach((item) => {
+        const category = item.getAttribute("data-category");
+        const visible = key === "all" || category === key;
+        item.toggleAttribute("hidden", !visible);
+      });
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setFilter(button.getAttribute("data-filter-key") || "all"));
+    });
+
+    setFilter("all");
+  });
+
+  const plausibleTrack = (eventName) => {
+    if (typeof window !== "undefined" && typeof window.plausible === "function" && eventName) {
+      window.plausible(eventName);
+    }
+  };
+
+  document.querySelectorAll("[data-track]").forEach((node) => {
+    node.addEventListener("click", () => {
+      plausibleTrack(node.getAttribute("data-track"));
+    });
+  });
+
+  document.querySelectorAll('a[href*="wa.me"]:not([data-track])').forEach((node) => {
+    node.addEventListener("click", () => plausibleTrack(whatsappEvent));
+  });
+
+  document.querySelectorAll('a[href*="cal.com"]:not([data-track])').forEach((node) => {
+    node.addEventListener("click", () => plausibleTrack(calEvent));
+  });
+
+  document.querySelectorAll('a[href*="/kontakt"]:not([data-track]), a[href*="#projektanfrage"]:not([data-track])').forEach((node) => {
+    node.addEventListener("click", () => plausibleTrack(projectCtaEvent));
+  });
+</script>

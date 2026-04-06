@@ -1,0 +1,43 @@
+---
+import ContextualCTA from "../components/ContextualCTA.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref } from "../data/site";
+---
+
+<BaseLayout
+  title="Seite nicht gefunden | Fly & Froth"
+  description="Die angeforderte Seite wurde nicht gefunden. Nutzen Sie die Navigation oder kontaktieren Sie Fly & Froth direkt."
+  pathname="/404"
+  robots="noindex,nofollow"
+>
+  <section class="page-section">
+    <div class="container">
+      <div class="page-hero-shell reveal">
+        <div class="section-intro">
+          <span class="eyebrow">404</span>
+          <h1>Diese Seite gibt es hier nicht mehr.</h1>
+          <p>
+            Nutzen Sie die Hauptnavigation, gehen Sie zurück zur Startseite oder schreiben Sie direkt an Fly & Froth,
+            wenn Sie nach einer bestimmten Leistung oder Referenz gesucht haben.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a class="button" href="/">
+            Zur Startseite
+          </a>
+          <a class="button button-secondary" href="/arbeiten">
+            Arbeiten ansehen
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Sie wegen eines konkreten Projekts oder einer Leistung hier gelandet sind, helfen wir direkt weiter."
+    text="Über die Projektanfrage oder per WhatsApp kommen Sie ohne Umwege zur richtigen Stelle."
+    primaryHref={createContactHref({ entry_point: "404_page" })}
+    secondaryHref={createWhatsappHref("Hallo Fly & Froth, ich habe eine gesuchte Seite nicht gefunden und möchte direkt Kontakt aufnehmen.")}
+  />
+</BaseLayout>

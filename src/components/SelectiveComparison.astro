@@ -1,0 +1,53 @@
+---
+import type { VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface ComparisonItem {
+  title: string;
+  text: string;
+  before: VisualAsset;
+  after: VisualAsset;
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+  items: ComparisonItem[];
+}
+
+const { eyebrow, title, text, items } = Astro.props;
+---
+
+<section class="selective-comparison reveal">
+  <div class="container">
+    {(eyebrow || title || text) && (
+      <div class="section-intro">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )}
+
+    <div class="comparison-grid">
+      {items.map((item) => (
+        <article class="comparison-card">
+          <div class="comparison-media">
+            <div class="comparison-shot">
+              <span class="small-label">Vorher</span>
+              <VisualAssetFrame asset={item.before} surface="comparison" widths={[640, 960, 1280]} sizes="(max-width: 760px) 100vw, 28vw" quality={80} />
+            </div>
+            <div class="comparison-shot">
+              <span class="small-label">Nachher</span>
+              <VisualAssetFrame asset={item.after} surface="comparison" widths={[640, 960, 1280]} sizes="(max-width: 760px) 100vw, 28vw" quality={80} />
+            </div>
+          </div>
+          <div class="comparison-copy">
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

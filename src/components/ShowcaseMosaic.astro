@@ -1,0 +1,61 @@
+---
+import { getVisualAssetCollection, type VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+  assets: VisualAsset[];
+}
+
+const { eyebrow, title, text, assets } = Astro.props;
+const visibleAssets = assets.slice(0, 5);
+const collectionLabels = {
+  website: "Website",
+  branding: "Branding",
+  print: "Print",
+  local: "Lokal",
+  divider: "Leitmotiv",
+  mosaic: "Mosaik"
+} as const;
+---
+
+<section class="showcase-mosaic reveal">
+  <div class="container">
+    {(eyebrow || title || text) && (
+      <div class="section-intro">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )}
+
+    <div class="showcase-mosaic-grid" data-scene>
+      {visibleAssets.map((asset, index) => (
+        <article
+          class:list={[
+            "showcase-mosaic-card",
+            index === 0 && "is-featured",
+            index === 1 && "is-tall",
+            index > 2 && "is-compact"
+          ]}
+          data-parallax-layer
+          data-depth={String(0.025 + index * 0.01)}
+        >
+          <VisualAssetFrame
+            asset={asset}
+            surface="mosaic"
+            widths={[640, 960, 1280, 1600]}
+            sizes="(max-width: 760px) 100vw, (max-width: 1180px) 50vw, 33vw"
+            quality={86}
+          />
+          <div class="showcase-mosaic-meta">
+            <span class="small-label">{collectionLabels[getVisualAssetCollection(asset)]}</span>
+            <p>{asset.alt}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

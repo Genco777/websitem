@@ -1,0 +1,128 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContextualCTA from "../components/ContextualCTA.astro";
+import PageShowcaseHero from "../components/PageShowcaseHero.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import ProjectGallery from "../components/ProjectGallery.astro";
+import SectionIntro from "../components/SectionIntro.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { createContactHref, createWhatsappHref } from "../data/site";
+import { curateVisualAssets, getProjectAssetsByIds, getProjectBySlug, getProjectGalleryAssets } from "../data/projects";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Websites für Dienstleister Rhein-Main", href: "/websites-fuer-dienstleister-rhein-main" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const meCon = getProjectBySlug("me-con")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop", "caremobil-after-mobile"]),
+    ...getProjectAssetsByIds(meCon, ["me-con-flyer-overview"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications"])
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "square_original"] }
+);
+
+const galleryImages = curateVisualAssets(
+  [
+    ...getProjectGalleryAssets(caremobil, 2),
+    ...getProjectGalleryAssets(meCon, 2),
+    ...getProjectGalleryAssets(conner, 1)
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "detail_crop", "square_original"] }
+);
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich interessiere mich für eine Website für Dienstleister im Rhein-Main-Gebiet.");
+---
+
+<BaseLayout
+  title="Websites für Dienstleister Rhein-Main | Fly & Froth"
+  description="Websites für Dienstleister im Rhein-Main-Gebiet: klarer Auftritt, bessere Struktur und hochwertige Kontaktführung."
+  pathname="/websites-fuer-dienstleister-rhein-main"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Websites für Dienstleister Rhein-Main", "Websites und strukturierte Anfragewege für Dienstleister.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Dienstleister Rhein-Main"
+    title="Websites für Dienstleister im Rhein-Main-Gebiet, die Kompetenz und Vertrauen sofort sichtbar machen."
+    text="Dienstleister verkaufen selten ein einfaches Produkt. Deshalb muss die Website nicht nur ordentlich aussehen, sondern Leistung, Haltung und nächsten Schritt präzise vorbereiten."
+    actions={[
+      { href: createContactHref({ entry_point: "seo_dienstleister_rhein_main", visual_context: "Dienstleister Landingpage" }), label: "Projekt anfragen" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true }
+    ]}
+    stats={[
+      { label: "Zielgruppe", value: "Dienstleister" },
+      { label: "Region", value: "Rhein-Main" },
+      { label: "Ansatz", value: "Sales-first" }
+    ]}
+    images={heroAssets}
+    tone="dark"
+    layout="hero"
+    badges={["Dienstleister", "Only Own Work"]}
+  />
+
+  <ProjectGallery
+    eyebrow="Relevante Beispiele"
+    title="Dienstleister brauchen Klarheit in Sprache, Struktur und Wirkung."
+    text="Die gezeigten Arbeiten zeigen, wie Vertrauen, Fachlichkeit und ruhige Führung über Website und Medien hinweg sauber aufgebaut werden."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Was den Unterschied macht"
+        title="Websites für Dienstleister müssen vor allem Orientierung und Vertrauen geben."
+        text="Gerade im Rhein-Main-Gebiet werden Fachlichkeit und Preisniveau häufig schon über die erste Website-Wirkung bewertet."
+      />
+
+      <div class="grid-3 reveal">
+        <article class="proof-card">
+          <h3>Kompetenz sichtbar machen</h3>
+          <p>Die Website muss den Nutzen der Leistung schnell, klar und ruhig einordnen können.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Hochwertige Führung</h3>
+          <p>Typografie, Bildführung und Kontaktwege sollten denselben professionellen Ton tragen.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Vorqualifizierte Kontakte</h3>
+          <p>Formular, WhatsApp und Gesprächstermin müssen bereits im Aufbau des Auftritts mitgedacht werden.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Passende Referenzen"
+        title="Drei Arbeiten, die für Dienstleister in Rhein-Main besonders anschlussfähig sind."
+        text="Diese Projekte zeigen, wie Klarheit, Vertrauen und Struktur über mehrere Medien hinweg zusammenfinden."
+      />
+
+      <div class="project-card-grid reveal">
+        {[caremobil, meCon, conner].map((project) => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Ihr Dienstleistungsangebot im Rhein-Main-Gebiet digital präziser und hochwertiger auftreten soll, ist das der richtige Einstieg."
+    text="Fly & Froth verbindet Website, Marke und Kontaktlogik zu einer ruhigen, professionellen und anschlussfähigen Gesamtwirkung."
+    primaryHref={createContactHref({ entry_point: "seo_dienstleister_rhein_main_cta", visual_context: "Dienstleister Landingpage" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

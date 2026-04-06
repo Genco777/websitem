@@ -1,0 +1,150 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import VisualAssetFrame from "../../components/VisualAssetFrame.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref, sectorPages } from "../../data/site";
+import {
+  curateVisualAssets,
+  getProjectAssetsByIds,
+  getProjectBySlug,
+  getProjectPrimaryAsset,
+  getProjectsBySlugs,
+  getProjectSelectedAssets
+} from "../../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../../utils/seo";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Branchen", href: "/branchen" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+const meCon = getProjectBySlug("me-con")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications-grid"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"]),
+    ...getProjectAssetsByIds(meCon, ["me-con-flyer-overview"])
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const galleryImages = curateVisualAssets(
+  [
+    ...getProjectSelectedAssets(caremobil, 2),
+    ...getProjectSelectedAssets(conner, 1),
+    ...getProjectSelectedAssets(reinigung, 1),
+    ...getProjectSelectedAssets(meCon, 1)
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const brancheOverviewSources = [...heroAssets, ...galleryImages].map((asset) => asset.sourceId);
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich möchte wissen, welche Ausrichtung für meine Branche am besten passt.");
+---
+
+<BaseLayout
+  title="Branchen | Fly & Froth"
+  description="Branchenfokus von Fly & Froth für Dienstleister und Handwerksbetriebe in Karben, Frankfurt und Rhein-Main."
+  pathname="/branchen"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Branchenfokus", "Fly & Froth für Dienstleister und Handwerk im Rhein-Main-Gebiet.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Branchen"
+    title="Besonders stimmig für Dienstleister und Handwerk mit regionalem Marktbezug."
+    text="Nicht jede Branche braucht dieselbe Gewichtung. Fly & Froth arbeitet vor allem dort stark, wo Vertrauen, Professionalität und ein sauberer erster Eindruck direkt geschäftlich relevant sind."
+    images={heroAssets}
+    tone="light"
+    layout="stack"
+    badges={["Branch Fit", "Only Own Work"]}
+  >
+    <div class="grid-1 reveal">
+      <article class="proof-card">
+        <h3>Dienstleister</h3>
+        <p>Für Angebote, bei denen Vertrauen, Klarheit und ein professioneller Erstkontakt entscheidend sind.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Handwerk</h3>
+        <p>Für Betriebe, die regional sichtbar hochwertiger auftreten und ihren Anfrageweg strukturierter aufbauen wollen.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Rhein-Main-Kontext</h3>
+        <p>Karben, Frankfurt und das weitere Umfeld verlangen keine Lautstärke, sondern eine sichtbar sauberere Linie.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <ProjectGallery
+    eyebrow="Reale Flächen"
+    title="Branchen werden hier mit echten Deliverables und nicht mit Klischeebildern erklärt."
+    text="Website, Brand und Print zeigen sofort, wie ein Unternehmen in einem regionalen Markt belastbarer, ruhiger und hochwertiger auftreten kann."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Zwei klare Richtungen"
+        title="Jede Branchenseite verbindet Problem, passendes Medium und reale Referenzen."
+        text="So bleibt der Übergang von Zielgruppe, Leistung und Beispiel logisch statt wie eine isolierte SEO-Hülle zu wirken."
+      />
+
+      <div class="service-grid reveal">
+        {sectorPages.map((sector) => {
+          const project = getProjectsBySlugs(sector.relatedProjects)[0];
+          const image =
+            project
+              ? curateVisualAssets(getProjectSelectedAssets(project, 3), { count: 1, excludeSourceIds: brancheOverviewSources })[0] ||
+                getProjectPrimaryAsset(project, "card")
+              : undefined;
+
+          return (
+            <article class="card accent-panel">
+              {image && (
+                <div class="photo-inline-card media-preview-tall section-stack-bottom-sm">
+                  <VisualAssetFrame
+                    asset={image}
+                    surface="branch-card"
+                    widths={[640, 960, 1280]}
+                    sizes="(max-width: 760px) 100vw, 50vw"
+                    quality={84}
+                  />
+                </div>
+              )}
+              <span class="small-label">{sector.title}</span>
+              <h3>{sector.promise}</h3>
+              <p>{sector.localAngle}</p>
+              <p class="section-stack-top-sm">
+                <a class="text-link" href={`/branchen/${sector.slug}`}>
+                  Branchenseite ansehen
+                </a>
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Sie wissen möchten, welche Linie für Ihre Branche in Rhein-Main am meisten trägt, ist das der richtige Einstieg."
+    text="Gemeinsam klären wir, ob Website, Brand, Print oder der Anfrageweg zuerst den größten qualitativen Unterschied erzeugt."
+    primaryHref={createContactHref({ entry_point: "branchen_overview", visual_context: "Branchen Overview" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

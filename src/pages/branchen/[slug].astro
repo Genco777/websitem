@@ -1,0 +1,157 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref, sectorPages } from "../../data/site";
+import {
+  getAssetsByCollection,
+  curateVisualAssets,
+  getProjectGalleryAssets,
+  getProjectPrimaryAsset,
+  getProjectsBySlugs,
+  getShowcaseAssetsByIds,
+} from "../../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../../utils/seo";
+
+export function getStaticPaths() {
+  return sectorPages.map((sector) => ({
+    params: { slug: sector.slug },
+    props: { sector }
+  }));
+}
+
+const { sector } = Astro.props;
+const relatedProjects = getProjectsBySlugs(sector.relatedProjects);
+const heroProject = relatedProjects[0];
+const heroImage =
+  getShowcaseAssetsByIds(sector.featuredShowcaseAssets)[0] ||
+  getAssetsByCollection(sector.heroAssetCollection, 1)[0] ||
+  getProjectPrimaryAsset(heroProject, "hero");
+
+const galleryImages = curateVisualAssets(
+  [
+    heroImage,
+    ...relatedProjects.flatMap((project) => getProjectGalleryAssets(project, 2)),
+    ...sector.supportingAssetCollections.flatMap((collection) => getAssetsByCollection(collection, 1))
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const sceneImages = curateVisualAssets([heroImage, ...galleryImages], {
+  count: 3,
+  preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "device_mockup", "square_original"]
+});
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Branchen", href: "/branchen" },
+  { name: sector.title, href: `/branchen/${sector.slug}` }
+];
+
+const inquiryHref = createContactHref({
+  sector: sector.title,
+  entry_point: `sector_${sector.slug}`,
+  visual_context: sector.visualTone
+});
+const whatsappHref = createWhatsappHref(
+  `Hallo Fly & Froth, ich möchte ein Projekt für ${sector.title.toLowerCase()} anfragen.`
+);
+---
+
+<BaseLayout
+  title={sector.seoTitle}
+  description={sector.seoDescription}
+  pathname={`/branchen/${sector.slug}`}
+  schema={[createBreadcrumbSchema(breadcrumbs), createServiceSchema(sector.title, sector.seoDescription)]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow={`Branche · ${sector.title}`}
+    title={sector.heroTitle}
+    text={sector.intro}
+    actions={[
+      { href: inquiryHref, label: "Projekt anfragen" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true }
+    ]}
+    stats={[
+      { label: "Standort", value: "Karben" },
+      { label: "Marktumfeld", value: "Frankfurt / Rhein-Main" },
+      { label: "Visuelle Linie", value: sector.visualTone }
+    ]}
+    images={sceneImages}
+    tone={sector.heroAssetCollection === "branding" ? "light" : "dark"}
+    layout={sector.heroAssetCollection === "print" ? "print" : sector.heroAssetCollection === "branding" ? "brand" : "hero"}
+    badges={[sector.title, "Only Own Work"]}
+  />
+
+  <ProjectGallery
+    eyebrow="Reale Referenzflächen"
+    title="Die Branche wird mit echten Deliverables sichtbar gemacht."
+    text="So bleibt sofort lesbar, wie Website, Brand oder Print für diese Zielgruppe professioneller, klarer und lokaler anschlussfähig aufgebaut werden können."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container split-layout">
+      <div>
+        <SectionIntro
+          eyebrow="Typische Hürden"
+          title="Wo in dieser Branche oft unnötig Potenzial verloren geht."
+          text={sector.promise}
+        />
+
+        <div class="grid-1 reveal">
+          {sector.painPoints.map((item) => (
+            <article class="proof-card">
+              <h3>{item}</h3>
+              <p>{sector.localAngle}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside class="sticky-panel">
+        <div class="metric-panel">
+          <div class="panel-kicker">Wie Fly & Froth ansetzt</div>
+          <div class="panel-stack">
+            {sector.solutionBlocks.map((item) => (
+              <article>
+                <strong>{item}</strong>
+                <span>{sector.promise}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Passende Referenzen"
+        title="Diese Projekte sind für die Zielgruppe besonders anschlussfähig."
+        text="Sie zeigen unterschiedliche Medien, aber dieselbe Grundlogik: ruhigerer Eindruck, klarere Leistungskommunikation und ein sauberer nächster Schritt."
+      />
+
+      <div class="project-card-grid reveal">
+        {relatedProjects.map((project) => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title={sector.ctaTitle}
+    text={sector.ctaText}
+    primaryHref={inquiryHref}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

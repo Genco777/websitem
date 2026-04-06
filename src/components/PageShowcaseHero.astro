@@ -1,0 +1,91 @@
+---
+import MockupScene from "./MockupScene.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { VisualAsset } from "../data/projects";
+
+interface Action {
+  href: string;
+  label: string;
+  style?: "primary" | "secondary";
+  external?: boolean;
+}
+
+interface Stat {
+  label: string;
+  value: string;
+  detail?: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  text?: string;
+  actions?: Action[];
+  stats?: Stat[];
+  images: VisualAsset[];
+  tone?: "dark" | "light" | "neutral";
+  layout?: "hero" | "brand" | "print" | "stack";
+  badges?: string[];
+  className?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  text,
+  actions = [],
+  stats = [],
+  images,
+  tone = "dark",
+  layout = "hero",
+  badges = [],
+  className = ""
+} = Astro.props;
+
+const hasExtra = Astro.slots.has("default");
+---
+
+<section class:list={["page-section", "page-showcase-hero", className]}>
+  <div class="container split-layout works-hero-shell">
+    <div class="page-showcase-copy">
+      <SectionIntro eyebrow={eyebrow} title={title} text={text} />
+
+      {actions.length > 0 && (
+        <div class="hero-actions">
+          {actions.map((action) => (
+            <a
+              class:list={["button", action.style === "secondary" && "button-secondary"]}
+              href={action.href}
+              target={action.external ? "_blank" : undefined}
+              rel={action.external ? "noreferrer" : undefined}
+            >
+              {action.label}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {stats.length > 0 && (
+        <div class="hero-stat-band">
+          {stats.map((stat) => (
+            <article class="hero-stat-card">
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+              {stat.detail && <small>{stat.detail}</small>}
+            </article>
+          ))}
+        </div>
+      )}
+
+      {hasExtra && (
+        <div class="page-showcase-extra">
+          <slot />
+        </div>
+      )}
+    </div>
+
+    <div class="reveal">
+      <MockupScene images={images} tone={tone} layout={layout} badges={badges} priority />
+    </div>
+  </div>
+</section>

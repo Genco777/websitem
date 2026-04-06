@@ -1,0 +1,277 @@
+---
+import {
+  analyticsEvents,
+  createWhatsappHref,
+  formOptions,
+  servicePillars
+} from "../data/site";
+
+interface Props {
+  sourcePage: string;
+  title?: string;
+  compact?: boolean;
+  sourceSection?: string;
+  ctaVariant?: string;
+  prefillService?: string;
+  projectContext?: string;
+  entryPoint?: string;
+  refProjectSlug?: string;
+  interestType?: string;
+  visualContext?: string;
+}
+
+const {
+  sourcePage,
+  title = "Projektanfrage",
+  compact = false,
+  sourceSection = "primary_form",
+  ctaVariant = "qualified_request",
+  prefillService = "",
+  projectContext = "",
+  entryPoint = "",
+  refProjectSlug = "",
+  interestType = "",
+  visualContext = ""
+} = Astro.props;
+
+const whatsappHref = createWhatsappHref();
+---
+
+<div class:list={["lead-form-card", compact && "is-compact"]}>
+  <div class="lead-form-head">
+    <span class="eyebrow">Qualifizierte Anfrage</span>
+    <h3>{title}</h3>
+    <p>
+      Je klarer die Ausgangslage, desto präziser lassen sich Positionierung, Umfang und sinnvoller Investitionsrahmen
+      einordnen.
+    </p>
+  </div>
+
+  <form class="lead-form" data-lead-form data-source-page={sourcePage}>
+    <input type="hidden" name="source_page" value={sourcePage} />
+    <input type="hidden" name="source_section" value={sourceSection} />
+    <input type="hidden" name="cta_variant" value={ctaVariant} />
+    <input type="hidden" name="project_context" value={projectContext} />
+    <input type="hidden" name="entry_point" value={entryPoint} />
+    <input type="hidden" name="ref_project_slug" value={refProjectSlug} />
+    <input type="hidden" name="visual_context" value={visualContext} />
+    <label class="field-honeypot" aria-hidden="true">
+      <span>Website</span>
+      <input name="website" tabindex="-1" autocomplete="off" />
+    </label>
+
+    <div class="form-grid">
+      <label>
+        <span>Name *</span>
+        <input name="name" autocomplete="name" required />
+      </label>
+
+      <label>
+        <span>Unternehmen</span>
+        <input name="company" autocomplete="organization" />
+      </label>
+
+      <label>
+        <span>E-Mail *</span>
+        <input name="email" type="email" autocomplete="email" required />
+      </label>
+
+      <label>
+        <span>Telefon / WhatsApp</span>
+        <input name="phone" type="tel" autocomplete="tel" />
+      </label>
+
+      <label>
+        <span>Branche *</span>
+        <select name="sector" required>
+          <option value="">Bitte wählen</option>
+          {formOptions.sectors.map((option) => (
+            <option value={option}>{option}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <span>Leistung *</span>
+        <select name="requested_service" required>
+          <option value="">Bitte wählen</option>
+          {servicePillars.map((service) => (
+            <option value={service.title} selected={service.title === prefillService}>
+              {service.title}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <span>Interesse</span>
+        <select name="interest_type">
+          <option value="">Bitte wählen</option>
+          <option value="Website" selected={interestType === "Website"}>Website</option>
+          <option value="Branding" selected={interestType === "Branding"}>Branding</option>
+          <option value="Print" selected={interestType === "Print"}>Print</option>
+          <option value="Systeme" selected={interestType === "Systeme"}>Systeme</option>
+          <option value="Kombination" selected={interestType === "Kombination"}>Kombination</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Budgetrahmen</span>
+        <select name="budget_range">
+          <option value="">Bitte wählen</option>
+          {formOptions.budgets.map((option) => (
+            <option value={option}>{option}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <span>Zeithorizont</span>
+        <select name="timeline">
+          <option value="">Bitte wählen</option>
+          {formOptions.timelines.map((option) => (
+            <option value={option}>{option}</option>
+          ))}
+        </select>
+      </label>
+
+      <label class="field-full">
+        <span>Was ist aktuell das Problem? *</span>
+        <textarea
+          name="current_problem"
+          rows="5"
+          placeholder="Zum Beispiel: Die Website wirkt nicht hochwertig genug, Anfragen sind unklar oder Marke und Werbemittel passen nicht mehr zum Anspruch."
+          required
+        ></textarea>
+      </label>
+
+      <label class="field-full">
+        <span>Bevorzugter Kontaktweg *</span>
+        <select name="preferred_contact" required>
+          <option value="">Bitte wählen</option>
+          <option value="WhatsApp">WhatsApp</option>
+          <option value="E-Mail">E-Mail</option>
+          <option value="Telefon">Telefon</option>
+          <option value="Kalender / Call">Kalender / Call</option>
+        </select>
+      </label>
+
+      <label class="field-full consent-field">
+        <input type="checkbox" name="privacy_consent" value="accepted" required />
+        <span>
+          Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner
+          Angaben zur Bearbeitung der Anfrage einverstanden. *
+        </span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="button" type="submit" data-track={analyticsEvents.projectCtaClick}>
+        Anfrage senden
+      </button>
+      <a
+        class="button button-secondary"
+        href={whatsappHref}
+        target="_blank"
+        rel="noreferrer"
+        data-track={analyticsEvents.whatsappClick}
+      >
+        WhatsApp statt Formular
+      </a>
+    </div>
+
+    <p class="form-meta">
+      Mit dem Senden werden Ihre Angaben zur Bearbeitung der Anfrage übermittelt. Details finden Sie in der{" "}
+      <a href="/datenschutz">Datenschutzerklärung</a>.
+    </p>
+    <p class="form-status" data-form-status aria-live="polite"></p>
+  </form>
+</div>
+
+<script is:inline>
+  (() => {
+    const EVENT_LEAD_FORM_SUBMIT = "Lead Form Submit";
+    const leadFormTrack = (eventName) => {
+      if (typeof window !== "undefined" && typeof window.plausible === "function") {
+        window.plausible(eventName);
+      }
+    };
+
+    const applyPrefill = (form) => {
+      const params = new URLSearchParams(window.location.search);
+        const fields = [
+          "requested_service",
+          "project_context",
+          "entry_point",
+          "ref_project_slug",
+          "interest_type",
+          "sector",
+          "visual_context"
+        ];
+
+      fields.forEach((name) => {
+        const value = params.get(name);
+        if (!value) return;
+        const field = form.elements.namedItem(name);
+        if (field && "value" in field) {
+          field.value = value;
+        }
+      });
+    };
+
+    document.querySelectorAll("[data-lead-form]").forEach((form) => {
+      applyPrefill(form);
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        const status = form.querySelector("[data-form-status]");
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+
+        form.setAttribute("aria-busy", "true");
+        if (submitButton) submitButton.disabled = true;
+        if (status) {
+          status.dataset.state = "loading";
+          status.textContent = "Anfrage wird gesendet ...";
+        }
+
+        try {
+          const response = await fetch("/.netlify/functions/lead-capture", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(result?.message || "Die Anfrage konnte nicht gesendet werden.");
+          }
+
+          form.reset();
+          applyPrefill(form);
+          leadFormTrack(EVENT_LEAD_FORM_SUBMIT);
+
+          if (status) {
+            status.dataset.state = "success";
+            status.textContent =
+              "Vielen Dank. Ihre Anfrage ist eingegangen. Wenn es besonders schnell gehen soll, können Sie uns parallel auch direkt per WhatsApp schreiben.";
+          }
+        } catch (error) {
+          if (status) {
+            status.dataset.state = "error";
+            status.textContent =
+              error instanceof Error && error.message
+                ? `${error.message} Schreiben Sie alternativ direkt an info@fly-froth.com oder nutzen Sie WhatsApp.`
+                : "Das Formular konnte gerade nicht gesendet werden. Schreiben Sie bitte direkt an info@fly-froth.com oder nutzen Sie WhatsApp, damit Ihre Anfrage nicht verloren geht.";
+          }
+        } finally {
+          form.removeAttribute("aria-busy");
+          if (submitButton) submitButton.disabled = false;
+        }
+      });
+    });
+  })();
+</script>

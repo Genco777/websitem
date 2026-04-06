@@ -1,0 +1,76 @@
+---
+import type { VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+export interface CuratedWorkItem {
+  id: string;
+  category: "website" | "brand" | "print";
+  title: string;
+  text: string;
+  href: string;
+  image: VisualAsset;
+  meta?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+  items: CuratedWorkItem[];
+  showFilters?: boolean;
+}
+
+const { eyebrow, title, text, items, showFilters = true } = Astro.props;
+const categories = [
+  { key: "all", label: "Alle" },
+  { key: "website", label: "Website" },
+  { key: "brand", label: "Brand" },
+  { key: "print", label: "Print" }
+] as const;
+---
+
+<section class="curated-work reveal">
+  <div class="container">
+    {(eyebrow || title || text) && (
+      <div class="section-intro">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )}
+
+    {showFilters && (
+      <div class="filter-row" data-work-filter>
+        {categories.map((category, index) => (
+          <button type="button" data-filter-key={category.key} class:list={["filter-chip", index === 0 && "is-active"]}>
+            {category.label}
+          </button>
+        ))}
+      </div>
+    )}
+
+    <div class="curated-work-grid">
+      {items.map((item, index) => (
+        <article class:list={["curated-work-card", index === 0 && "is-featured"]} data-work-item data-category={item.category}>
+          <a href={item.href}>
+            <div class="curated-work-media">
+              <VisualAssetFrame
+                asset={item.image}
+                surface={index === 0 ? "curated-featured" : "curated-card"}
+                widths={[640, 960, 1280, 1440]}
+                sizes={index === 0 ? "(max-width: 760px) 100vw, (max-width: 1180px) 100vw, 50vw" : "(max-width: 760px) 100vw, (max-width: 1180px) 50vw, 33vw"}
+                quality={82}
+              />
+            </div>
+            <div class="curated-work-copy">
+              <span class="small-label">{item.category}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+              {item.meta && <span class="case-meta">{item.meta}</span>}
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,67 @@
+---
+import type { VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Props {
+  images: VisualAsset[];
+  tone?: "dark" | "light" | "neutral";
+  layout?: "hero" | "brand" | "print" | "stack";
+  badges?: string[];
+  priority?: boolean;
+}
+
+const { images, tone = "dark", layout = "hero", badges = [], priority = false } = Astro.props;
+const [lead, second, third] = images.slice(0, 3);
+---
+
+<div class:list={["mockup-scene", `is-${tone}`, `is-${layout}`]} data-scene>
+  <div class="mockup-scene-glow mockup-scene-glow-a"></div>
+  <div class="mockup-scene-glow mockup-scene-glow-b"></div>
+
+  <div class="mockup-scene-board">
+    {lead && (
+      <article class="mockup-card mockup-card-lead" data-parallax-layer data-depth="0.03">
+        <VisualAssetFrame
+          asset={lead}
+          surface="mockup-lead"
+          widths={[720, 960, 1280, 1440]}
+          sizes="(max-width: 920px) 92vw, (max-width: 1180px) 82vw, 54vw"
+          quality={84}
+          priority={priority}
+        />
+      </article>
+    )}
+
+    {second && (
+      <article class="mockup-card mockup-card-second" data-parallax-layer data-depth="0.07">
+        <VisualAssetFrame
+          asset={second}
+          surface="mockup-support"
+          widths={[360, 540, 720]}
+          sizes="(max-width: 920px) 42vw, 20vw"
+          quality={80}
+        />
+      </article>
+    )}
+
+    {third && (
+      <article class="mockup-card mockup-card-third" data-parallax-layer data-depth="0.06">
+        <VisualAssetFrame
+          asset={third}
+          surface="mockup-support"
+          widths={[360, 540, 720]}
+          sizes="(max-width: 920px) 42vw, 20vw"
+          quality={80}
+        />
+      </article>
+    )}
+  </div>
+
+  {badges.length > 0 && (
+    <div class="mockup-scene-badges">
+      {badges.map((badge) => (
+        <span>{badge}</span>
+      ))}
+    </div>
+  )}
+</div>

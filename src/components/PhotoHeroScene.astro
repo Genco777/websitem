@@ -1,0 +1,76 @@
+---
+import type { VisualAsset } from "../data/projects";
+import type { StatItem } from "../data/site";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Action {
+  href: string;
+  label: string;
+  style?: "primary" | "secondary";
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  image: VisualAsset;
+  actions?: Action[];
+  stats?: StatItem[];
+  note?: string;
+}
+
+const { eyebrow, title, intro, image, actions = [], stats = [], note } = Astro.props;
+---
+
+<section class="photo-hero-scene reveal">
+  <div class="photo-hero-frame" data-scene>
+    <VisualAssetFrame
+      asset={image}
+      surface="photo-hero"
+      className="photo-hero-media"
+      widths={[900, 1200, 1600, 2200]}
+      sizes="100vw"
+      quality={88}
+      priority
+    />
+    <div class="photo-hero-overlay"></div>
+
+    <div class="container photo-hero-content">
+      <div class="photo-hero-copy" data-parallax-layer data-depth="0.08">
+        <span class="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p class="hero-intro">{intro}</p>
+
+        {actions.length > 0 && (
+          <div class="hero-actions">
+            {actions.map((action) => (
+              <a
+                class:list={["button", action.style === "secondary" && "button-secondary"]}
+                href={action.href}
+                target={action.external ? "_blank" : undefined}
+                rel={action.external ? "noreferrer" : undefined}
+              >
+                {action.label}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {note && <span class="inline-note">{note}</span>}
+      </div>
+
+      {stats.length > 0 && (
+        <div class="photo-hero-stats" data-parallax-layer data-depth="0.04">
+          {stats.map((stat) => (
+            <article class="hero-stat-card">
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+              {stat.detail && <small>{stat.detail}</small>}
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>

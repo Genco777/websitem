@@ -1,0 +1,152 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import ServiceProofStrip from "../../components/ServiceProofStrip.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  createContactHref,
+  createWhatsappHref,
+  processSteps,
+  servicePillars
+} from "../../data/site";
+import {
+  curateVisualAssets,
+  getProjectSelectedAssets,
+  getProjectsBySlugs,
+  getShowcaseAssetsByIds,
+} from "../../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../../utils/seo";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Leistungen", href: "/leistungen" }
+];
+
+const whatsappHref = createWhatsappHref();
+
+const relatedProjects = servicePillars.flatMap((service) => getProjectsBySlugs(service.relatedProjects).slice(0, 1));
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectSelectedAssets(relatedProjects[0], 2),
+    ...getProjectSelectedAssets(relatedProjects[1], 1),
+    ...getProjectSelectedAssets(relatedProjects[2], 1)
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const galleryImages = curateVisualAssets(
+  relatedProjects.flatMap((project) => getProjectSelectedAssets(project, 2)),
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "detail_crop", "square_original"] }
+);
+
+const overviewVisualSources = [...heroAssets, ...galleryImages].map((asset) => asset.sourceId);
+
+const serviceItems = servicePillars.map((service) => {
+  const relatedProject = getProjectsBySlugs(service.relatedProjects)[0];
+  const preview =
+    curateVisualAssets(
+      [
+        ...getShowcaseAssetsByIds(service.featuredShowcaseAssets),
+        ...(relatedProject ? getProjectSelectedAssets(relatedProject, 3) : [])
+      ],
+      {
+        count: 1,
+        excludeSourceIds: overviewVisualSources,
+        preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "device_mockup", "square_original"]
+      }
+    )[0] ||
+    (relatedProject ? getProjectSelectedAssets(relatedProject, 1)[0] : undefined);
+
+  return {
+    label: service.shortLabel,
+    title: service.title,
+    text: service.promise,
+    href: `/leistungen/${service.slug}`,
+    investment: service.investment,
+    image: preview
+  };
+});
+---
+
+<BaseLayout
+  title="Leistungen | Fly & Froth"
+  description="Leistungsübersicht von Fly & Froth: Webdesign, Brand Design und strukturierte Systeme für Unternehmen in Karben, Frankfurt und Rhein-Main."
+  pathname="/leistungen"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Leistungen von Fly & Froth", "Webdesign, Brand Design und strukturierte Systeme.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Leistungen"
+    title="Drei Leistungsfelder. Eine visuelle Linie. Ein sauber vorbereiteter Marktauftritt."
+    text="Fly & Froth verbindet Website, Brand und Systeme so, dass nicht drei lose Gewerke entstehen, sondern ein sichtbarer Qualitätsgewinn über mehrere Flächen hinweg."
+    stats={[
+      { label: "Webdesign", value: "klarer Erstkontakt" },
+      { label: "Brand Design", value: "präzisere Wiedererkennung" },
+      { label: "Systeme", value: "ruhigerer Anfrageweg" }
+    ]}
+    images={heroAssets}
+    tone="light"
+    layout="hero"
+    badges={["3 Leistungsfelder", "Only Own Work"]}
+  >
+    <div class="grid-1 reveal">
+      <article class="proof-card">
+        <h3>Keine isolierten Disziplinen</h3>
+        <p>Jede Leistung ist einzeln buchbar, entfaltet ihre größte Wirkung aber im Zusammenspiel mit den anderen Flächen.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Reale visuelle Proofs</h3>
+        <p>Jede Leistungsseite greift auf echte Arbeiten zurück und bleibt dadurch konkret statt abstrakt.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <ServiceProofStrip
+    eyebrow="Leistungssäulen"
+    title="Jede Leistung zeigt direkt passende reale Projekte und einen sichtbaren Rahmen."
+    text="So bleibt die Übersicht konkret und nicht theoretisch. Jede Säule verweist auf passende Arbeiten, typische Aufgaben und einen transparenten Investitionsrahmen."
+    items={serviceItems}
+  />
+
+  <ProjectGallery
+    eyebrow="Visual Snapshot"
+    title="Die Leistungsübersicht macht sofort sichtbar, dass hinter jeder Säule echte Deliverables stehen."
+    text="Website, Brand und Print werden nicht behauptet, sondern direkt über ausgewählte Flächen lesbar gemacht."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Zusammenarbeit"
+        title="Der Ablauf bleibt über alle Leistungen hinweg geordnet und nachvollziehbar."
+        text="Strategie, Design und Umsetzung folgen immer derselben Logik. Das reduziert Reibung und macht die Qualität reproduzierbar."
+      />
+
+      <div class="grid-2 reveal">
+        {processSteps.slice(0, 4).map((step) => (
+          <article class="proof-card">
+            <span class="small-label">{step.step}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Sie zuerst klären möchten, mit welcher Leistung Ihr Projekt sinnvoll beginnt, ist das der richtige Einstieg."
+    text="In der Erstberatung sortieren wir, ob Website, Brand Design oder Systemlogik zuerst den größten Hebel erzeugt und wie tief die Umsetzung gehen sollte."
+    primaryHref={createContactHref({ entry_point: "leistungen_overview", visual_context: "Leistungen Overview" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

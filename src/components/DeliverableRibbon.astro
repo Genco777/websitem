@@ -1,0 +1,51 @@
+---
+import type { PortfolioCollection, VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+type RibbonItem = PortfolioCollection & {
+  asset?: VisualAsset;
+  count?: number;
+};
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+  items: RibbonItem[];
+}
+
+const { eyebrow, title, text, items } = Astro.props;
+---
+
+<section class="deliverable-ribbon reveal">
+  <div class="container">
+    {(eyebrow || title || text) && (
+      <div class="section-intro">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )}
+
+    <div class="deliverable-ribbon-track">
+      {items.map((item) => (
+        <article class="deliverable-chip">
+          {item.asset && (
+            <div class="deliverable-chip-media">
+              <VisualAssetFrame
+                asset={item.asset}
+                surface="ribbon"
+                widths={[360, 560, 760]}
+                sizes="(max-width: 760px) 100vw, 22vw"
+                quality={84}
+              />
+            </div>
+          )}
+          <span class="small-label">{item.label}</span>
+          <h3>{item.description}</h3>
+          <p>{item.count ? `${item.count} sichtbare Beispiele im aktuellen Portfolio.` : "Reale Arbeiten statt abstrakter Kategorien."}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

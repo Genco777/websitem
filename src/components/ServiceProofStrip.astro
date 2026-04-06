@@ -1,0 +1,59 @@
+---
+import type { VisualAsset } from "../data/projects";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Item {
+  label: string;
+  title: string;
+  text: string;
+  href: string;
+  investment?: string;
+  image?: VisualAsset;
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+  items: Item[];
+}
+
+const { eyebrow, title, text, items } = Astro.props;
+---
+
+<section class="service-proof-strip reveal">
+  <div class="container">
+    {(eyebrow || title || text) && (
+      <div class="section-intro">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )}
+
+    <div class="service-proof-grid">
+      {items.map((item) => (
+        <article class="service-proof-card">
+          {item.image && (
+            <div class="service-proof-media">
+              <VisualAssetFrame
+                asset={item.image}
+                surface="service-card"
+                widths={[640, 960, 1280]}
+                sizes="(max-width: 760px) 100vw, 33vw"
+                quality={80}
+              />
+            </div>
+          )}
+          <span class="small-label">{item.label}</span>
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+          {item.investment && <div class="inline-note">{item.investment}</div>}
+          <a class="text-link" href={item.href}>
+            Mehr erfahren
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

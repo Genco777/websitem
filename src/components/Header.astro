@@ -1,0 +1,124 @@
+---
+import { analyticsEvents, createWhatsappHref, navigation, siteConfig } from "../data/site";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const activeItem =
+  navigation.find((item) => currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href))) ||
+  navigation[0];
+
+const whatsappHref = createWhatsappHref();
+---
+
+<header class="site-header" data-header>
+  <div class="container header-container">
+    <div class="header-shell">
+      <a class="brand" href="/" aria-label={`${siteConfig.brand} Startseite`}>
+        <img src="/favicon.svg" alt="Fly & Froth Logo" width="42" height="42" />
+        <span>
+          <strong>{siteConfig.brand}</strong>
+          <small>Marke, Website, Systeme</small>
+        </span>
+      </a>
+
+      <nav class="main-nav header-center" aria-label="Hauptnavigation">
+        <ul>
+          {navigation.map((item) => {
+            const isActive = currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href));
+
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  class={isActive ? "is-active" : undefined}
+                  data-nav-link
+                  data-nav-label={item.label}
+                  data-nav-description={item.description}
+                >
+                  <span>{item.label}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a
+          class="button button-secondary button-small"
+          href={whatsappHref}
+          target="_blank"
+          rel="noreferrer"
+          data-track={analyticsEvents.whatsappClick}
+        >
+          {siteConfig.ctaMapping.secondary}
+        </a>
+        <a class="button button-small" href="/kontakt#projektanfrage" data-track={analyticsEvents.projectCtaClick}>
+          {siteConfig.ctaMapping.primary}
+        </a>
+      </div>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+        data-nav-toggle
+        aria-label="Navigation öffnen"
+      >
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <div class="mobile-nav" id="mobile-navigation" data-nav-panel>
+      <div class="mobile-nav-inner">
+        <div class="mobile-nav-head">
+          <span class="small-label">Navigation</span>
+          <p>{activeItem.description}</p>
+        </div>
+
+        <nav aria-label="Mobile Navigation">
+          <ul>
+            {navigation.map((item) => {
+              const isActive = currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href));
+
+              return (
+                <li>
+                  <a href={item.href} class={isActive ? "is-active" : undefined}>
+                    <strong>{item.label}</strong>
+                    <small>{item.description}</small>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div class="mobile-nav-actions">
+          <a class="button" href="/kontakt#projektanfrage" data-track={analyticsEvents.projectCtaClick}>
+            {siteConfig.ctaMapping.primary}
+          </a>
+          <a
+            class="button button-secondary"
+            href={whatsappHref}
+            target="_blank"
+            rel="noreferrer"
+            data-track={analyticsEvents.whatsappClick}
+          >
+            {siteConfig.ctaMapping.secondary}
+          </a>
+        </div>
+
+        <div class="mobile-nav-meta">
+          <a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a>
+          <a href={`tel:${siteConfig.contact.phoneRaw}`}>{siteConfig.contact.phoneDisplay}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

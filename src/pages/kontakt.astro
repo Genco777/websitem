@@ -1,0 +1,127 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContextualCTA from "../components/ContextualCTA.astro";
+import LeadForm from "../components/LeadForm.astro";
+import MockupScene from "../components/MockupScene.astro";
+import PageShowcaseHero from "../components/PageShowcaseHero.astro";
+import SectionIntro from "../components/SectionIntro.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { createWhatsappHref, siteConfig } from "../data/site";
+import { curateVisualAssets, getProjectAssetsByIds, getProjectBySlug, getVisualAssetById } from "../data/projects";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Kontakt", href: "/kontakt" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications"]),
+    getVisualAssetById("showcase-brand-business-card")!,
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"])
+  ],
+  { count: 3, preferredVariants: ["print_mockup", "detail_crop", "wide_banner", "square_original", "device_mockup"] }
+);
+
+const contactAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-mobile"]),
+    ...getProjectAssetsByIds(conner, ["conner-logo-after"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-flyer-identity-slide"])
+  ],
+  { count: 2, preferredVariants: ["print_mockup", "device_mockup", "detail_crop", "square_original"] }
+);
+
+const whatsappHref = createWhatsappHref();
+const calendarHref = siteConfig.integrations.calComUrl || "/kontakt#projektanfrage";
+---
+
+<BaseLayout
+  title="Kontakt | Fly & Froth"
+  description="Kontakt zu Fly & Froth in Karben: Projektanfrage für Website, Brand Design und strukturierte Systeme."
+  pathname="/kontakt"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Kontakt Fly & Froth", "Projektanfrage für Website, Marke und Systeme.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Kontakt"
+    title="Projektanfrage für Website, Brand oder Systemlösung mit klarer Ausgangslage."
+    text="Wenn Ihr Unternehmen hochwertiger auftreten, klarer verkaufen oder digital ruhiger laufen soll, starten wir mit einer qualifizierten Anfrage. So lässt sich schnell einordnen, was strategisch und wirtschaftlich sinnvoll ist."
+    actions={[
+      { href: "#projektanfrage", label: "Zum Formular" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true },
+      { href: calendarHref, label: "Erstgespräch", style: "secondary", external: true }
+    ]}
+    images={heroAssets}
+    tone="light"
+    layout="brand"
+    badges={["Projektstart", "Only Own Work"]}
+  >
+    <div class="grid-3 reveal">
+      <article class="proof-card">
+        <h3>WhatsApp</h3>
+        <p>Für schnelle Rückfragen, kurze Einordnung oder direkten Erstkontakt.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Formular</h3>
+        <p>Für Projekte, bei denen Umfang, Leistung und Timing sauber sortiert werden sollen.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Erstgespräch</h3>
+        <p>Wenn Ziel, Investitionsrahmen und Projektfenster grundsätzlich schon eingeordnet sind.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <section class="page-section surface-light" id="projektanfrage">
+    <div class="container split-layout">
+      <div>
+        <SectionIntro
+          eyebrow="Anfrage"
+          title="Je klarer die Ausgangslage, desto präziser die Empfehlung."
+          text="Das Formular ist keine Hürde, sondern ein Qualifizierungsrahmen. So lassen sich Leistung, Priorität und sinnvoller Investitionsbereich schneller sauber einordnen."
+        />
+
+        <div class="reveal">
+          <MockupScene images={contactAssets} tone="light" layout="stack" badges={["Website", "Brand", "Print"]} />
+        </div>
+
+        <div class="grid-1 reveal section-stack-top">
+          <article class="proof-card">
+            <span class="small-label">Direkt erreichbar</span>
+            <h3>{siteConfig.contact.addressLine1}, {siteConfig.contact.postalCode} {siteConfig.contact.city}</h3>
+            <p>{siteConfig.contact.email} · {siteConfig.contact.phoneDisplay}</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <LeadForm
+          sourcePage="/kontakt"
+          title="Projektanfrage starten"
+          sourceSection="contact_main"
+          ctaVariant="visual_optimization_contact"
+          visualContext="Kontaktseite"
+        />
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn die Aufgabe bereits konkret ist, können wir direkt in den passenden Einstieg gehen."
+    text="WhatsApp für den schnellen Kontakt, Formular für eine saubere Vorqualifizierung oder Erstgespräch für den strategischen Rahmen."
+    primaryHref={calendarHref}
+    primaryLabel="Erstgespräch"
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

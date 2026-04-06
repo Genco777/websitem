@@ -1,0 +1,128 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContextualCTA from "../components/ContextualCTA.astro";
+import PageShowcaseHero from "../components/PageShowcaseHero.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import ProjectGallery from "../components/ProjectGallery.astro";
+import SectionIntro from "../components/SectionIntro.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+import { createContactHref, createWhatsappHref } from "../data/site";
+import { curateVisualAssets, getProjectAssetsByIds, getProjectBySlug, getProjectGalleryAssets } from "../data/projects";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Webdesign Karben", href: "/webdesign-karben" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop", "caremobil-after-mobile"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications-grid"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"])
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "square_original"] }
+);
+
+const galleryImages = curateVisualAssets(
+  [
+    ...getProjectGalleryAssets(caremobil, 2),
+    ...getProjectGalleryAssets(conner, 1),
+    ...getProjectGalleryAssets(reinigung, 2)
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "detail_crop", "square_original"] }
+);
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich interessiere mich für Webdesign in Karben.");
+---
+
+<BaseLayout
+  title="Webdesign Karben | Fly & Froth"
+  description="Webdesign in Karben: hochwertige Websites, Markenauftritte und strukturierte Kontaktwege für lokale Unternehmen."
+  pathname="/webdesign-karben"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Webdesign Karben", "Webdesign und Markenauftritte für Unternehmen aus Karben.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Webdesign Karben"
+    title="Webdesign in Karben für Unternehmen, die regional deutlich hochwertiger auftreten wollen."
+    text="Fly & Froth sitzt in Karben und entwickelt Websites, Markenauftritte und Kontaktlogik für Unternehmen, die lokal professioneller wirken wollen als der übliche Standard."
+    actions={[
+      { href: createContactHref({ entry_point: "seo_karben", visual_context: "Karben Landingpage" }), label: "Projekt anfragen" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true }
+    ]}
+    stats={[
+      { label: "Karben", value: "klarer Standortbezug" },
+      { label: "Frankfurt-Nähe", value: "starker regionaler Kontext" },
+      { label: "Premium", value: "über dem lokalen Standard" }
+    ]}
+    images={heroAssets}
+    tone="light"
+    layout="hero"
+    badges={["Karben", "Only Own Work"]}
+  />
+
+  <ProjectGallery
+    eyebrow="Lokale Beispiele"
+    title="Webdesign in Karben heißt mehr als einfach online auffindbar zu sein."
+    text="Wer lokal gefunden wird, wird auch lokal bewertet. Deshalb entscheidet nicht nur die Präsenz, sondern der gesamte erste Eindruck."
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Worauf es ankommt"
+        title="Markenqualität, Klarheit und strukturierte Kontaktwege machen den Unterschied."
+        text="Für Karben, Wetterau und das weitere Rhein-Main-Gebiet braucht es eine Website, die sichtbar Vertrauen aufbaut und den nächsten Schritt einfach macht."
+      />
+
+      <div class="grid-3 reveal">
+        <article class="proof-card">
+          <h3>Markenwirkung</h3>
+          <p>Ein starker Auftritt baut Vertrauen auf, bevor überhaupt gesprochen wird.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Lokale Relevanz</h3>
+          <p>Karben, Frankfurt und Rhein-Main werden sprachlich und strukturell sauber eingebunden.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Lead-Führung</h3>
+          <p>WhatsApp, Formular und Terminlogik werden strategisch eingebaut statt zufällig ergänzt.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Passende Referenzen"
+        title="Drei Arbeiten, die für den lokalen Markt besonders gut anschlussfähig sind."
+        text="Diese Projekte zeigen, wie Website, Markenmittel und Werbeflächen im regionalen Wettbewerb professioneller wirken können."
+      />
+
+      <div class="project-card-grid reveal">
+        {[caremobil, conner, reinigung].map((project) => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Sie in Karben einen digitalen Auftritt wollen, der deutlich stärker wirkt als der lokale Standard, ist das der richtige Einstieg."
+    text="Fly & Froth verbindet Nähe, gestalterische Qualität und Systemdenken zu einem hochwertigen regionalen Auftritt."
+    primaryHref={createContactHref({ entry_point: "seo_karben_cta", visual_context: "Karben Landingpage" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

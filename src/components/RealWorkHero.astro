@@ -1,0 +1,121 @@
+---
+import type { VisualAsset } from "../data/projects";
+import type { StatItem } from "../data/site";
+import VisualAssetFrame from "./VisualAssetFrame.astro";
+
+interface Action {
+  href: string;
+  label: string;
+  style?: "primary" | "secondary";
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  assets: VisualAsset[];
+  actions?: Action[];
+  stats?: StatItem[];
+  note?: string;
+}
+
+const { eyebrow, title, intro, assets, actions = [], stats = [], note } = Astro.props;
+const [leadAsset, secondaryAsset, tertiaryAsset, quaternaryAsset] = assets;
+---
+
+<section class="real-work-hero reveal">
+  <div class="container">
+    <div class="real-work-shell" data-scene>
+      <div class="real-work-copy" data-parallax-layer data-depth="0.05">
+        <span class="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p class="hero-intro">{intro}</p>
+
+        {actions.length > 0 && (
+          <div class="hero-actions">
+            {actions.map((action) => (
+              <a
+                class:list={["button", action.style === "secondary" && "button-secondary"]}
+                href={action.href}
+                target={action.external ? "_blank" : undefined}
+                rel={action.external ? "noreferrer" : undefined}
+              >
+                {action.label}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {note && <span class="inline-note">{note}</span>}
+      </div>
+
+      <div class="real-work-visual" data-parallax-layer data-depth="0.03">
+        <div class="real-work-stage">
+          {leadAsset && (
+            <article class="visual-card visual-card-lead">
+              <VisualAssetFrame
+                asset={leadAsset}
+                surface="real-work-lead"
+                widths={[720, 960, 1280, 1600]}
+                sizes="(max-width: 900px) 100vw, 46vw"
+                quality={88}
+                priority
+              />
+            </article>
+          )}
+
+          <div class="real-work-rail">
+            {secondaryAsset && (
+              <article class="visual-card visual-card-secondary" data-parallax-layer data-depth="0.08">
+                <VisualAssetFrame
+                  asset={secondaryAsset}
+                  surface="real-work-support"
+                  widths={[480, 720, 960]}
+                  sizes="(max-width: 900px) 100vw, 22vw"
+                  quality={84}
+                />
+              </article>
+            )}
+
+            {tertiaryAsset && (
+              <article class="visual-card visual-card-tertiary" data-parallax-layer data-depth="0.06">
+                <VisualAssetFrame
+                  asset={tertiaryAsset}
+                  surface="real-work-support"
+                  widths={[480, 720, 960]}
+                  sizes="(max-width: 900px) 100vw, 22vw"
+                  quality={84}
+                />
+              </article>
+            )}
+          </div>
+        </div>
+
+        {quaternaryAsset && (
+          <article class="visual-card visual-card-quaternary" data-parallax-layer data-depth="0.04">
+            <VisualAssetFrame
+              asset={quaternaryAsset}
+              surface="real-work-support"
+              widths={[480, 720, 960]}
+              sizes="(max-width: 900px) 100vw, 18vw"
+              quality={82}
+            />
+          </article>
+        )}
+      </div>
+    </div>
+
+    {stats.length > 0 && (
+      <div class="hero-stat-band reveal">
+        {stats.map((stat) => (
+          <article class="hero-stat-card">
+            <span>{stat.label}</span>
+            <strong>{stat.value}</strong>
+            {stat.detail && <small>{stat.detail}</small>}
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</section>

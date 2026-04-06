@@ -1,0 +1,88 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SiteScripts from "../components/SiteScripts.astro";
+import { siteConfig } from "../data/site";
+import { absoluteUrl, createOrganizationSchema } from "../utils/seo";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  pathname?: string;
+  schema?: Record<string, unknown>[];
+  robots?: string;
+}
+
+const {
+  title = siteConfig.defaultTitle,
+  description = siteConfig.defaultDescription,
+  image = "/images/social/og-default.jpg",
+  pathname = Astro.url.pathname,
+  schema = [],
+  robots = "index,follow"
+} = Astro.props;
+
+const canonical = absoluteUrl(pathname);
+const socialImage = absoluteUrl(image);
+const schemaItems = [createOrganizationSchema(), ...schema];
+---
+
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content={siteConfig.theme.themeColor} />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="format-detection" content="telephone=no" />
+    <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteConfig.brand} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content={`${siteConfig.brand} Vorschau`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    {siteConfig.integrations.plausibleDomain && (
+      <script
+        is:inline
+        defer
+        data-domain={siteConfig.integrations.plausibleDomain}
+        src={siteConfig.integrations.plausibleScript}
+      ></script>
+    )}
+    {schemaItems.map((item) => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(item)}></script>
+    ))}
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Zum Inhalt springen</a>
+    <div class="site-shell">
+      <Header currentPath={pathname} />
+      <main id="content">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <SiteScripts />
+  </body>
+</html>

@@ -1,0 +1,129 @@
+---
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import ContextualCTA from "../components/ContextualCTA.astro";
+import PageShowcaseHero from "../components/PageShowcaseHero.astro";
+import ProcessRail from "../components/ProcessRail.astro";
+import ProjectGallery from "../components/ProjectGallery.astro";
+import SectionIntro from "../components/SectionIntro.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref, processSteps } from "../data/site";
+import { curateVisualAssets, getProjectAssetsByIds, getProjectBySlug } from "../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../utils/seo";
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Prozess", href: "/prozess" }
+];
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+const meCon = getProjectBySlug("me-con")!;
+
+const heroAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop"]),
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"]),
+    ...getProjectAssetsByIds(meCon, ["me-con-rollup-overview"])
+  ],
+  { count: 3, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const processVisuals = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(caremobil, ["caremobil-after-desktop", "caremobil-after-mobile"]),
+    ...getProjectAssetsByIds(conner, ["conner-logo-after"]),
+    ...getProjectAssetsByIds(reinigung, ["reinigung-final-mockup"]),
+    ...getProjectAssetsByIds(meCon, ["me-con-flyer-overview"])
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "detail_crop", "device_mockup", "square_original"] }
+);
+
+const whatsappHref = createWhatsappHref("Hallo Fly & Froth, ich möchte den Projektprozess für mein Unternehmen besprechen.");
+---
+
+<BaseLayout
+  title="Prozess | Fly & Froth"
+  description="Projektprozess von Fly & Froth: von Discovery und Positionierung bis zu Umsetzung, Launch und Betreuung."
+  pathname="/prozess"
+  schema={[
+    createBreadcrumbSchema(breadcrumbs),
+    createServiceSchema("Projektprozess", "Der Arbeitsprozess von Fly & Froth für Marke, Website und Systeme.")
+  ]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow="Prozess"
+    title="Kein loses Abarbeiten, sondern ein geordneter Aufbau von Wirkung, Medium und Umsetzung."
+    text="Fly & Froth führt Projekte bewusst in einer klaren Reihenfolge: erst verstehen, dann schärfen, dann gestalten und erst danach technisch oder medial ausspielen."
+    stats={[
+      { label: "Ablauf", value: "5 Schritte" },
+      { label: "Verbindung", value: "Website + Brand + Systeme" },
+      { label: "Ziel", value: "klare Entscheidungen" }
+    ]}
+    images={heroAssets}
+    tone="dark"
+    layout="brand"
+    badges={["5 Schritte", "Controlled Process"]}
+  >
+    <div class="grid-1 reveal">
+      <article class="proof-card">
+        <h3>Weniger Reibung</h3>
+        <p>Die Reihenfolge verhindert, dass Inhalte, Bildsprache und Technik sich im Projekt gegenseitig überholen.</p>
+      </article>
+      <article class="proof-card">
+        <h3>Bessere Übertragbarkeit</h3>
+        <p>Was einmal klar definiert ist, lässt sich sauber auf Website, Print und weitere Kontaktflächen übertragen.</p>
+      </article>
+    </div>
+  </PageShowcaseHero>
+
+  <ProcessRail
+    eyebrow="Ablauf"
+    title="Fünf Schritte, die Strategie, Gestaltung und Umsetzung sauber verbinden."
+    text="Der Ablauf bleibt unabhängig vom Projekttyp konsistent. Das sorgt für Ruhe, Qualität und weniger Reibung."
+    steps={processSteps}
+  />
+
+  <ProjectGallery
+    eyebrow="Prozess in realen Flächen"
+    title="Die Logik des Prozesses wird in echten Arbeiten sichtbar."
+    text="An den gezeigten Deliverables lässt sich ablesen, wie Entscheidungen, Gestaltung und Kontaktweg im Ergebnis dieselbe Linie tragen."
+    images={processVisuals}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Woran man einen guten Prozess erkennt"
+        title="Nicht an vielen Meetings, sondern an sauberer Wirkung im Ergebnis."
+        text="Ein guter Ablauf zeigt sich dort, wo Prioritäten klar bleiben, Anwendungen konsistent wirken und der nächste Schritt nicht zufällig entsteht."
+      />
+
+      <div class="grid-3 reveal">
+        <article class="proof-card">
+          <h3>Klare Entscheidungen</h3>
+          <p>Typografie, Bildführung und Struktur sind begründet und nicht zufällig zusammengeworfen.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Belastbarer Alltag</h3>
+          <p>Kontaktwege, Formulare, Druckdaten und Übergaben bleiben auch nach dem Launch praktisch nutzbar.</p>
+        </article>
+        <article class="proof-card">
+          <h3>Weniger Restarbeiten</h3>
+          <p>Launch, Print und Systemlogik werden nicht am Ende improvisiert, sondern von Anfang an mitgedacht.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title="Wenn Sie nicht nur ein Ergebnis, sondern auch einen klaren Weg dorthin wollen, ist das der richtige Einstieg."
+    text="Im Erstgespräch klären wir, an welcher Stelle Ihr Projekt in diesen Ablauf einsteigt und welche Prioritäten zuerst gesetzt werden sollten."
+    primaryHref={createContactHref({ entry_point: "prozess_cta", visual_context: "Projektprozess" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

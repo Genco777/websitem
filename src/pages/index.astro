@@ -1,0 +1,294 @@
+---
+import ContextualCTA from "../components/ContextualCTA.astro";
+import CuratedWorkGrid from "../components/CuratedWorkGrid.astro";
+import LeadForm from "../components/LeadForm.astro";
+import LightDarkSection from "../components/LightDarkSection.astro";
+import MockupScene from "../components/MockupScene.astro";
+import ScrollCaseHero from "../components/ScrollCaseHero.astro";
+import SectionIntro from "../components/SectionIntro.astro";
+import SelectiveComparison from "../components/SelectiveComparison.astro";
+import ServiceProofStrip from "../components/ServiceProofStrip.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  createContactHref,
+  createWhatsappHref,
+  heroStats,
+  processSteps,
+  sectorPages,
+  servicePillars,
+  siteConfig,
+  supportingLinks
+} from "../data/site";
+import {
+  curateVisualAssets,
+  getProjectAssetsByIds,
+  getProjectBySlug,
+  getProjectHeroScenes,
+  getProjectSelectedAssets,
+  getVisualAssetById,
+} from "../data/projects";
+import { createServiceSchema } from "../utils/seo";
+
+const caremobil = getProjectBySlug("caremobil-greiz")!;
+const conner = getProjectBySlug("conner-exteriors")!;
+const reinigung = getProjectBySlug("reinigung-hd")!;
+const meCon = getProjectBySlug("me-con")!;
+
+const heroScenes = [
+  ...getProjectHeroScenes(caremobil),
+  ...getProjectHeroScenes(conner),
+  ...getProjectHeroScenes(reinigung)
+];
+
+const whatsappHref = createWhatsappHref();
+
+const selectedWorkItems = [
+  {
+    id: "work-caremobil",
+    category: "website" as const,
+    title: "CareMobil Greiz",
+    text: "Vorher-Nachher-Komposition mit ruhigerem Aufbau, klarerer Kontaktlogik und deutlich professionellerem Erstkontakt.",
+    href: "/referenzen/caremobil-greiz",
+    image: getProjectAssetsByIds(caremobil, ["caremobil-before-after-wide"])[0],
+    meta: "Website · Hero Case"
+  },
+  {
+    id: "work-conner",
+    category: "brand" as const,
+    title: "Conner Exteriors",
+    text: "Logo-Refresh und Markenanwendungen mit weniger Laerm, mehr Wiedererkennung und saubererem visuellen Zug.",
+    href: "/referenzen/conner-exteriors",
+    image: getProjectAssetsByIds(conner, ["conner-brand-applications-grid"])[0],
+    meta: "Brand · Case Study"
+  },
+  {
+    id: "work-card-system",
+    category: "brand" as const,
+    title: "Brand Applications",
+    text: "Visitenkarte, Markenflache und Typografie greifen als ein sichtbares System ineinander.",
+    href: "/leistungen/brand-design-grafikdesign",
+    image: getVisualAssetById("showcase-brand-business-card")!,
+    meta: "Brand · Detail"
+  },
+  {
+    id: "work-reinigung",
+    category: "print" as const,
+    title: "Reinigung HD",
+    text: "Flyer-Mockup mit geordneter Preislogik, sauberer Hierarchie und deutlich staerkerer Direktwirkung.",
+    href: "/referenzen/reinigung-hd",
+    image: getProjectAssetsByIds(reinigung, ["reinigung-flyer-mockup-grid"])[0],
+    meta: "Print · Hero Mockup"
+  },
+  {
+    id: "work-mecon",
+    category: "print" as const,
+    title: "ME CON Expo",
+    text: "Großflachige Markenwirkung mit ruhiger Nutzenkommunikation und klarer Beratungspositionierung.",
+    href: "/referenzen/me-con",
+    image: getProjectAssetsByIds(meCon, ["me-con-expo-banner"])[0],
+    meta: "Print · Banner"
+  }
+];
+
+const selectedWorkSourceIds = selectedWorkItems.map((item) => item.image.sourceId);
+
+const serviceItems = servicePillars.map((service) => {
+  const relatedProject = getProjectBySlug(service.relatedProjects[0] || "");
+  const preview =
+    curateVisualAssets(
+      [
+        ...service.featuredShowcaseAssets.map((id) => getVisualAssetById(id)).filter(Boolean),
+        ...(relatedProject ? getProjectSelectedAssets(relatedProject, 3) : [])
+      ],
+      {
+        count: 1,
+        excludeSourceIds: selectedWorkSourceIds,
+        preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "device_mockup", "square_original"]
+      }
+    )[0] ||
+    (relatedProject ? getProjectSelectedAssets(relatedProject, 1)[0] : undefined);
+
+  return {
+    label: service.shortLabel,
+    title: service.title,
+    text: service.promise,
+    href: `/leistungen/${service.slug}`,
+    investment: service.investment,
+    image: preview
+  };
+});
+
+const processSceneAssets = curateVisualAssets(
+  [
+    ...getProjectAssetsByIds(conner, ["conner-brand-applications", "conner-logo-after"]),
+    getVisualAssetById("showcase-brand-business-card")!,
+    ...getProjectAssetsByIds(meCon, ["me-con-flyer-overview"])
+  ],
+  { count: 3, preferredVariants: ["print_mockup", "detail_crop", "square_original", "wide_banner", "device_mockup"] }
+);
+
+const comparisonItems = [
+  {
+    title: "Website-Relaunch mit spuerbar ruhigerer Wirkung",
+    text: "Das CareMobil-Projekt zeigt, wie Struktur, Lesbarkeit und Kontaktlogik schon auf der Startflache deutlich hochwertiger wirken konnen.",
+    before: getProjectAssetsByIds(caremobil, ["caremobil-before-desktop"])[0],
+    after: getProjectAssetsByIds(caremobil, ["caremobil-after-desktop"])[0]
+  }
+];
+---
+
+<BaseLayout
+  title={siteConfig.defaultTitle}
+  description={siteConfig.defaultDescription}
+  schema={[createServiceSchema("Webdesign, Brand Design und Systeme", siteConfig.defaultDescription)]}
+>
+  <ScrollCaseHero
+    eyebrow={siteConfig.heroBadge}
+    title="Sales-first Portfolio fur Unternehmen, die sichtbar hochwertiger auftreten wollen."
+    intro="Fly & Froth verbindet Website, Brand und Print zu einem Auftritt, der nicht nach Baukasten aussieht, sondern nach klarer Qualitat, geordnetem Kontakt und echter Gestaltungsdisziplin."
+    scenes={heroScenes}
+    actions={[
+      { href: createContactHref({ entry_point: "homepage_scroll_hero", visual_context: "Scroll Case Hero" }), label: siteConfig.ctaMapping.primary },
+      { href: whatsappHref, label: siteConfig.ctaMapping.secondary, style: "secondary", external: true }
+    ]}
+    stats={heroStats}
+  />
+
+  <section class="page-section">
+    <div class="container">
+      <div class="local-strip reveal">
+        {supportingLinks.map((link) => (
+          <a href={link.href}>{link.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CuratedWorkGrid
+    eyebrow="Selected Work"
+    title="Fünf Flächen, die Niveau und Richtung sofort lesbar machen."
+    text="Die Auswahl zeigt nicht einfach Dateien, sondern die visuelle Spannweite der Arbeit: Website, Brand und Print in einer ruhigen, hochwertigen Linie."
+    items={selectedWorkItems}
+    showFilters={false}
+  />
+
+  <LightDarkSection tone="light" className="visual-collection-section">
+    <ServiceProofStrip
+      eyebrow="Leistungsfelder"
+      title="Website, Brand und Systeme greifen bei Fly & Froth als ein gemeinsames Geschäftssystem ineinander."
+      text="Je besser die Verbindung zwischen visueller Qualität, Markenlogik und Kontaktweg ist, desto stärker wirkt der gesamte Auftritt."
+      items={serviceItems}
+    />
+  </LightDarkSection>
+
+  <LightDarkSection tone="dark" className="process-value-section">
+    <div class="container">
+      <div class="split-layout">
+        <div>
+          <SectionIntro
+            eyebrow="Wie die Wirkung entsteht"
+            title="Nicht mehr Elemente machen einen Auftritt stärker, sondern bessere Auswahl und richtige Reihenfolge."
+            text="Die Arbeit beginnt mit Positionierung und endet nicht beim schönen Bild, sondern beim geordneten, überzeugenden Gesamteindruck."
+          />
+
+          <div class="grid-1 reveal">
+            {processSteps.slice(0, 4).map((step) => (
+              <article class="proof-card">
+                <span class="small-label">{step.step}</span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="reveal">
+          <MockupScene images={processSceneAssets} tone="dark" layout="brand" badges={["Brand System", "Print Logic"]} />
+        </div>
+      </div>
+    </div>
+  </LightDarkSection>
+
+  <LightDarkSection tone="light" className="comparison-section">
+    <SelectiveComparison
+      eyebrow="Selective Before / After"
+      title="Vorher-Nachher dort, wo es die Qualitätsdifferenz wirklich trägt."
+      text="Die Seite lebt nicht von ständigen Vergleichen. An der richtigen Stelle macht ein einziger Vergleich die Veränderung aber sofort klar."
+      items={comparisonItems}
+    />
+  </LightDarkSection>
+
+  <section class="page-section">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Investitionsrahmen"
+        title="Preisrahmen bleiben sichtbar, ohne billig zu wirken."
+        text="Die Spannen sind bewusst offen kommuniziert. Der tatsächliche Umfang hängt von Design-Tiefe, Seitenstruktur, Printbedarf und technischer Anbindung ab."
+      />
+
+      <div class="hero-price-band reveal">
+        <article class="price-card">
+          <strong>Website mit Terminbuchung</strong>
+          <span>ca. 1.500 – 2.500 €</span>
+          <small>Für kompakte Websites mit klarer Kontaktlogik und mobiler Führung.</small>
+        </article>
+        <article class="price-card">
+          <strong>Corporate Design</strong>
+          <span>ca. 700 – 1.800 €</span>
+          <small>Für fokussierte Markenauftritte, Logo-Refresh und konsistente Anwendungen.</small>
+        </article>
+        <article class="price-card">
+          <strong>Komplettlösung</strong>
+          <span>ca. 2.000 – 4.000 €</span>
+          <small>Für Website, Marke und Anfrageweg aus einer Hand. Je nach Umfang und Anforderungen.</small>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <LightDarkSection tone="dark" className="branchen-section">
+    <div class="container">
+      <div class="split-layout">
+        <div>
+          <SectionIntro
+            eyebrow="Branchen-Fit"
+            title="Besonders stimmig für Dienstleister und Handwerk in Karben, Frankfurt und Rhein-Main."
+            text="Gerade dort, wo Vertrauen, regionale Wahrnehmung und ein sauberer Erstkontakt geschäftlich entscheidend sind, entfaltet die Kombination aus Website, Brand und Struktur die größte Wirkung."
+          />
+
+          <div class="grid-2 reveal">
+            {sectorPages.map((sector) => (
+              <article class="proof-card">
+                <span class="small-label">{sector.title}</span>
+                <h3>{sector.promise}</h3>
+                <p>{sector.localAngle}</p>
+                <p class="section-stack-top-sm">
+                  <a class="text-link" href={`/branchen/${sector.slug}`}>
+                    Branchenseite ansehen
+                  </a>
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="reveal">
+          <LeadForm
+            sourcePage="/"
+            title="Projekt sauber anfragen"
+            sourceSection="home_high_intent"
+            ctaVariant="art_direction_home"
+            visualContext="Homepage Art Direction"
+          />
+        </div>
+      </div>
+    </div>
+  </LightDarkSection>
+
+  <ContextualCTA
+    title="Wenn Ihr Auftritt klarer, hochwertiger und verkaufsnäher wirken soll, ist das der richtige nächste Schritt."
+    text="Projektanfrage oder WhatsApp: Wir ordnen gemeinsam, welche Kombination aus Website, Brand und Systemlogik für Ihre Situation den größten Hebel hat."
+    primaryHref={createContactHref({ entry_point: "homepage_final_cta", visual_context: "Visual Optimization Homepage" })}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>

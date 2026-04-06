@@ -1,0 +1,220 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ContextualCTA from "../../components/ContextualCTA.astro";
+import PageShowcaseHero from "../../components/PageShowcaseHero.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import ProjectGallery from "../../components/ProjectGallery.astro";
+import SectionIntro from "../../components/SectionIntro.astro";
+import SelectiveComparison from "../../components/SelectiveComparison.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { createContactHref, createWhatsappHref, servicePillars } from "../../data/site";
+import {
+  getAssetsByCollection,
+  curateVisualAssets,
+  getProjectAssetsByIds,
+  getProjectBySlug,
+  getProjectGalleryAssets,
+  getProjectPrimaryAsset,
+  getProjectsBySlugs,
+  getShowcaseAssetsByIds,
+} from "../../data/projects";
+import { createBreadcrumbSchema, createServiceSchema } from "../../utils/seo";
+
+export function getStaticPaths() {
+  return servicePillars.map((service) => ({
+    params: { slug: service.slug },
+    props: { service }
+  }));
+}
+
+const { service } = Astro.props;
+const relatedProjects = getProjectsBySlugs(service.relatedProjects);
+const heroProject = relatedProjects[0] || getProjectBySlug("caremobil-greiz")!;
+const heroImage =
+  getShowcaseAssetsByIds(service.featuredShowcaseAssets)[0] ||
+  getAssetsByCollection(service.heroAssetCollection, 1)[0] ||
+  getProjectPrimaryAsset(heroProject, "hero");
+
+const galleryImages = curateVisualAssets(
+  [
+    heroImage,
+    ...relatedProjects.flatMap((project) => getProjectGalleryAssets(project, 2)),
+    ...service.supportingAssetCollections.flatMap((collection) => getAssetsByCollection(collection, 1)),
+    ...getShowcaseAssetsByIds(service.featuredShowcaseAssets)
+  ],
+  { count: 4, preferredVariants: ["wide_banner", "print_mockup", "device_mockup", "detail_crop", "square_original"] }
+);
+
+const sceneImages = curateVisualAssets([heroImage, ...galleryImages], {
+  count: 3,
+  preferredVariants: ["detail_crop", "wide_banner", "print_mockup", "device_mockup", "square_original"]
+});
+const comparisonProject = relatedProjects.find((project) => (project.comparisonAssetIds || []).length >= 2);
+const comparisonPair =
+  comparisonProject && comparisonProject.comparisonAssetIds
+    ? getProjectAssetsByIds(comparisonProject, comparisonProject.comparisonAssetIds)
+    : [];
+
+const comparisonItems =
+  comparisonPair.length >= 2
+    ? [
+        {
+          title: `${comparisonProject?.publicName} zeigt die Qualitätsdifferenz besonders deutlich.`,
+          text: "Gerade in dieser Leistung ist sichtbar, wie sich Ordnung, Wertigkeit und Kontaktklarheit durch die richtigen Deliverables verändern.",
+          before: comparisonPair[0],
+          after: comparisonPair[1]
+        }
+      ]
+    : [];
+
+const breadcrumbs = [
+  { name: "Start", href: "/" },
+  { name: "Leistungen", href: "/leistungen" },
+  { name: service.title, href: `/leistungen/${service.slug}` }
+];
+
+const inquiryHref = createContactHref({
+  requested_service: service.title,
+  entry_point: `service_${service.slug}`,
+  visual_context: service.visualTone
+});
+const whatsappHref = createWhatsappHref(
+  `Hallo Fly & Froth, ich interessiere mich für ${service.title} und möchte eine Erstberatung anfragen.`
+);
+---
+
+<BaseLayout
+  title={service.seoTitle}
+  description={service.seoDescription}
+  pathname={`/leistungen/${service.slug}`}
+  schema={[createBreadcrumbSchema(breadcrumbs), createServiceSchema(service.title, service.seoDescription)]}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <PageShowcaseHero
+    eyebrow={`Leistung · ${service.shortLabel}`}
+    title={service.heroTitle}
+    text={service.intro}
+    actions={[
+      { href: inquiryHref, label: "Projekt anfragen" },
+      { href: whatsappHref, label: "WhatsApp", style: "secondary", external: true }
+    ]}
+    stats={[
+      { label: "Investitionsrahmen", value: service.investment },
+      { label: "Passende Referenzen", value: String(relatedProjects.length) },
+      { label: "Bildton", value: service.visualTone }
+    ]}
+    images={sceneImages}
+    tone={service.heroAssetCollection === "branding" ? "light" : "dark"}
+    layout={service.slug === "brand-design-grafikdesign" ? "brand" : service.slug === "automation-systeme" ? "stack" : "hero"}
+    badges={[service.shortLabel, "Only Own Work"]}
+  />
+
+  <ProjectGallery
+    eyebrow="Visual Proof"
+    title="Die Leistung wird nicht abstrakt beschrieben, sondern an realen Arbeiten sichtbar gemacht."
+    text={service.visualProof}
+    images={galleryImages}
+    maxItems={3}
+  />
+
+  <section class="page-section surface-light">
+    <div class="container split-layout">
+      <div>
+        <SectionIntro
+          eyebrow="Was diese Leistung löst"
+          title="Typische Situationen, in denen diese Leistung den größten Hebel hat."
+          text={service.promise}
+        />
+
+        <div class="grid-2 reveal">
+          <article class="proof-card">
+            <h3>Ausgangslagen</h3>
+            <ul class="check-list section-stack-top-sm">
+              {service.whatThisSolves.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+          <article class="proof-card">
+            <h3>Lieferumfang</h3>
+            <ul class="check-list section-stack-top-sm">
+              {service.deliverables.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <aside class="sticky-panel">
+        <div class="metric-panel">
+          <div class="panel-kicker">Investitionsrahmen</div>
+          <div class="panel-stack">
+            <article>
+              <strong>{service.investment}</strong>
+              <span>Je nach Umfang und Anforderungen.</span>
+            </article>
+            {service.pricingFactors.map((factor) => (
+              <article>
+                <strong>{factor}</strong>
+                <span>Beeinflusst Tiefe, Aufwand und Zahl der Ausgabeflächen.</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {comparisonItems.length > 0 && (
+    <SelectiveComparison
+      eyebrow="Selektiver Vergleich"
+      title="Dort, wo ein Vorher-Nachher wirklich hilfreich ist, wird die Veränderung klar sichtbar."
+      text="Nicht jede Leistung braucht denselben Beweis. Aber an der richtigen Stelle macht der Vergleich Qualität unmittelbar lesbar."
+      items={comparisonItems}
+    />
+  )}
+
+  <section class="page-section">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Prozess"
+        title="Wie diese Leistung in der Zusammenarbeit aufgebaut wird."
+        text="Nicht als lose To-do-Liste, sondern in einer Reihenfolge, die Wirkung und Umsetzung sauber miteinander verbindet."
+      />
+
+      <div class="timeline-grid reveal">
+        {service.process.map((item, index) => (
+          <article class="timeline-item">
+            <h3>{index + 1}. Schritt</h3>
+            <p>{item}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section surface-dark">
+    <div class="container">
+      <SectionIntro
+        eyebrow="Verwandte Projekte"
+        title="Reale Projekte, die diese Leistung konkret greifbar machen."
+        text="Diese Referenzen zeigen, wie die Leistung in der Praxis auf unterschiedlichen Flächen und für unterschiedliche Branchen wirkt."
+      />
+
+      <div class="project-card-grid reveal">
+        {relatedProjects.map((project) => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ContextualCTA
+    title={service.ctaTitle}
+    text={service.ctaText}
+    primaryHref={inquiryHref}
+    secondaryHref={whatsappHref}
+  />
+</BaseLayout>
